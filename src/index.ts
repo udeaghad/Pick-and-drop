@@ -1,6 +1,7 @@
 import express, { Request, Response, ErrorRequestHandler, Application} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import mongoose from "mongoose";
 
 dotenv.config();
 const app: Application = express();
@@ -19,6 +20,29 @@ app.use(cors(options));
 /**Middleware to parse incoming request */
 app.use(express.json());
 
+/**connect to database */
+const databaseURL: string = String(process.env.MONGO);
+
+const connect = async () => {
+  try {
+    await mongoose.createConnection(databaseURL);
+    console.log("connected to MongoDB")
+  } catch (error) {
+   console.error(error)     
+  }
+}
+
+/**Check connection to MongoDB */
+mongoose.connection.on("disconnected", () => {
+  console.log("Database Disconnected")
+})
+
+mongoose.connection.on("connected", () => {
+  console.log("Database Connected")
+});
+
+
+
 app.get('/api/v1/', (req: Request, res: Response) => {
   res.send("Hello World")
 });
@@ -36,5 +60,6 @@ const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
 app.use(errorHandler);
 
 app.listen(port, () => {
+  connect();
   console.log(`Server is running on port ${port}`)
 });
