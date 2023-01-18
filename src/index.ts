@@ -50,11 +50,12 @@ app.get('/api/v1/', (req: Request, res: Response) => {
 /**Error Handler */
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
   res.status(error.status || 500)
-  res.send({
+  res.json({
     success: false,
     status: error.status || 500,
     message: error.message || "Sorry! something went wrong"
   })
+  next();
 }
 
 app.use(errorHandler);
