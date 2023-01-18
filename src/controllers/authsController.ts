@@ -15,14 +15,8 @@ interface RegisterCompanyType {
   rating?:number;
 };
 
-interface LoginCompanyType {
-  email: string;
-  password: string;
-}
 
 const jwtEnv: string = String(process.env.JWT);
-
-
 
 export const registerCompany = async(req:Request, res:Response, next:NextFunction): Promise<void> => {
   const {name, email, phoneNumber, city, state, password, logo}: RegisterCompanyType = req.body;
@@ -63,6 +57,20 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
     res
     .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
     .status(200).json(otherDetails);
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const updateCompanyPassword = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+     await CompanyModel.findByIdAndUpdate(
+      req.params.companyId, {$set: {password: hash}}, {new: true} 
+    )
+    res.status(200).send("Password updated successfully");
   } catch (err) {
     next(err)
   }
