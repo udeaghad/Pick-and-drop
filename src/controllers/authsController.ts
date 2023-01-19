@@ -15,6 +15,9 @@ interface RegisterCompanyType {
   rating?:number;
 };
 
+interface Company {
+  _doc: RegisterCompanyType;
+}
 
 const secretKey: Secret = String(process.env.JWT);
 
@@ -43,19 +46,20 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
   
   try {
-    const company: RegisterCompanyType | null = await CompanyModel.findOne({email: req.body.email});
-    if(!company) return {status: 404, message: "Company not found"};
+    const company: Company | null = await CompanyModel.findOne({email: req.body.email});
+    
+    if(!company) return res.json({status: 404, message: "Company not found"}) 
 
-    const validPassword = await bcrypt.compare(req.body.password, company.password);
-    if(!validPassword) return {status: 404, message: "Invalid Password"}
+    const {_id, name, email, phoneNumber, city, state, password, logo, rating}  = company._doc;
 
-    const token = jwt.sign({id: company._id}, secretKey)    
+    const validPassword = await bcrypt.compare(req.body.password, password);
+    if(!validPassword) return res.json({status: 404, message: "Invalid Password"})
 
-    const {password, ...otherDetails } = company;
+    const token = jwt.sign({id: _id}, secretKey)   
 
     res
     .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
-    .status(200).json(otherDetails);
+    .status(200).json({ _id, name, email, phoneNumber, city, state, logo, rating });
   } catch (err) {
     next(err)
   }
