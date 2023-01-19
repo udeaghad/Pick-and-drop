@@ -28,6 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 /**connect to database */
+mongoose.set('strictQuery', true);
 const databaseURL: string = String(process.env.MONGO);
 
 const connect = () => {

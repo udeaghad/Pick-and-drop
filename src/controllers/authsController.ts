@@ -38,7 +38,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
     })
 
     await newCompany.save();
-    res.status(201).send("User created successfully")
+    res.status(201).send("Company created successfully")
   } catch (err) {
     next(err);
   }
@@ -51,7 +51,7 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
     
     if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
 
-    const {_id, name, email, phoneNumber, city, state, password, logo, rating}  = company._doc;
+    const {_id, password, ...otherDetails }  = company._doc;
 
     const validPassword = await bcrypt.compare(req.body.password, password);
     if(!validPassword) return res.status(404).json({status: 404, message: "Invalid Password"})
@@ -60,7 +60,7 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
 
     res
     .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
-    .status(200).json({ _id, name, email, phoneNumber, city, state, logo, rating });
+    .status(200).json({ _id, ...otherDetails });
   } catch (err) {
     next(err)
   }
