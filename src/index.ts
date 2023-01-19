@@ -2,6 +2,7 @@ import express, { Request, Response, ErrorRequestHandler, Application} from "exp
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
+import companyAuthsRoutes from "./routes/companyAuthsRoutes"
 
 dotenv.config();
 const app: Application = express();
@@ -43,9 +44,10 @@ mongoose.connection.on("connected", () => {
 
 
 
-app.get('/api/v1/', (req: Request, res: Response) => {
-  res.send("Hello World")
-});
+// app.get('/api/v1/', (req: Request, res: Response) => {
+//   res.send("Hello World")
+// });
+app.use("/api/v1/auths", companyAuthsRoutes )
 
 /**Error Handler */
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
