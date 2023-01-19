@@ -15,7 +15,7 @@ interface RegisterCompanyType {
   rating?:number;
 };
 
-interface Company {
+interface CompanyType {
   _doc: RegisterCompanyType;
 }
 
@@ -46,7 +46,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
   
   try {
-    const company: Company | null = await CompanyModel.findOne({email: req.body.email});
+    const company: CompanyType | null = await CompanyModel.findOne({email: req.body.email});
     
     if(!company) return res.json({status: 404, message: "Company not found"}) 
 
