@@ -9,14 +9,15 @@ const app: Application = express();
 const port: number = Number(process.env.PORT) || 5001;
 
 /**Setup cors */
-const allowedOrigins: string[] = ['http://localhost:3000'];
+// const allowedOrigins: string[] = ['http://localhost:3000'];
 
-const options: cors.CorsOptions = {
-  credentials: true,
-  origin: allowedOrigins,
-};
+// const options: cors.CorsOptions = {
+//   credentials: true,
+//   origin: allowedOrigins,
+// };
 
-app.use(cors(options));
+// app.use(cors(options));
+app.use(cors());
 
 /**Middleware to parse incoming request */
 app.use(express.json());
@@ -24,9 +25,9 @@ app.use(express.json());
 /**connect to database */
 const databaseURL: string = String(process.env.MONGO);
 
-const connect = async () => {
+const connect = () => {
   try {
-    await mongoose.createConnection(databaseURL);
+    mongoose.connect(databaseURL);
     console.log("connected to MongoDB")
   } catch (error) {
    console.error(error)     
@@ -44,9 +45,9 @@ mongoose.connection.on("connected", () => {
 
 
 
-// app.get('/api/v1/', (req: Request, res: Response) => {
-//   res.send("Hello World")
-// });
+app.get('/api/v1/', (req: Request, res: Response) => {
+  res.send("Hello World")
+});
 app.use("/api/v1/auths", companyAuthsRoutes )
 
 /**Error Handler */

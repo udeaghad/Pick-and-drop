@@ -7,7 +7,7 @@ interface RegisterCompanyType {
   _id?: string;
   name: string;
   email: string;
-  phoneNumber: number;
+  phoneNumber: string;
   city: string;
   state: string;
   password: string;
@@ -31,7 +31,6 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
       city,
       state,
       password: hash,
-      logo,
     })
 
     await newCompany.save();

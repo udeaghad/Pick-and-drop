@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 interface ICompany {
   name: string;
   email: string;
-  phoneNumber: number;
+  phoneNumber: string;
   city: string;
   state: string;
   password: string;
@@ -29,7 +29,7 @@ const CompanySchema = new Schema<ICompany>({
   },
 
   phoneNumber: {
-    type: Number,
+    type: String,
     required: true,
     unique: true,
   },
