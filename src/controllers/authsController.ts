@@ -2,9 +2,10 @@ import CompanyModel from "../models/CompanyModel";
 import bcrypt from "bcryptjs";
 import jwt, {Secret} from "jsonwebtoken";
 import {Request, Response, NextFunction} from "express";
+import { Types } from "mongoose";
 
 interface RegisterCompanyType {
-  _id?: string;
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   phoneNumber: string;
