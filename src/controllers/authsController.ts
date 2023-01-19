@@ -11,7 +11,7 @@ interface RegisterCompanyType {
   city: string;
   state: string;
   password: string;
-  logo: string;
+  logo?: string;
   rating?:number;
 };
 
