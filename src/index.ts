@@ -2,6 +2,7 @@ import express, { Request, Response, ErrorRequestHandler, Application} from "exp
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import companyAuthsRoutes from "./routes/companyAuthsRoutes";
 import companyRoutes from "./routes/companyRoutes";
 
@@ -22,6 +23,9 @@ app.use(cors());
 
 /**Middleware to parse incoming request */
 app.use(express.json());
+
+/**cookie parser */
+app.use(cookieParser());
 
 /**connect to database */
 const databaseURL: string = String(process.env.MONGO);
