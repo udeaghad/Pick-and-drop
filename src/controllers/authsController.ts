@@ -48,12 +48,12 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
   try {
     const company: CompanyType | null = await CompanyModel.findOne({email: req.body.email});
     
-    if(!company) return res.json({status: 404, message: "Company not found"}) 
+    if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
 
     const {_id, name, email, phoneNumber, city, state, password, logo, rating}  = company._doc;
 
     const validPassword = await bcrypt.compare(req.body.password, password);
-    if(!validPassword) return res.json({status: 404, message: "Invalid Password"})
+    if(!validPassword) return res.status(404).json({status: 404, message: "Invalid Password"})
 
     const token = jwt.sign({id: _id}, secretKey)   
 

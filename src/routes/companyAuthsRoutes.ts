@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/register/company", registerCompany);
 router.post("/login/company", companyLogin);
-router.post("/pasword/company", updateCompanyPassword);
+router.post("/pasword/company/:companyId", updateCompanyPassword);
 
 export default router;
