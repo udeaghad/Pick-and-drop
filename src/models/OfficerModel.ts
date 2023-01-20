@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 
 interface IOfficer {
   name: string;
+  password: string;
   address: string;
   companyId: Types.ObjectId;
   location: string;
@@ -20,6 +21,11 @@ const OfficerSchema = new Schema<IOfficer>({
     type: String,
     required: true,
     lowercase: true,
+  },
+
+  password: {
+    type: String,
+    required: true
   },
 
   address: {

@@ -1,4 +1,5 @@
 import CompanyModel from "../models/CompanyModel";
+import OfficerModel from "../models/OfficerModel";
 import bcrypt from "bcryptjs";
 import jwt, {Secret} from "jsonwebtoken";
 import {Request, Response, NextFunction} from "express";
@@ -20,9 +21,23 @@ interface CompanyType {
   _doc: RegisterCompanyType;
 }
 
+interface RegisterOfficerType {
+  _id?: Types.ObjectId;
+  name: string;
+  password: string;
+  address: string;
+  companyId: Types.ObjectId;
+  location: string;
+  phoneNumber: string;
+  pending?: number;
+  viewed?: number;
+  picked?: number;
+  transit?: number;
+}
+
 const secretKey: Secret = String(process.env.JWT);
 
-export const registerCompany = async(req:Request, res:Response, next:NextFunction): Promise<void> => {
+export const registerCompany = async(req:Request, res:Response, next:NextFunction) => {
   const {name, email, phoneNumber, city, state, password, logo}: RegisterCompanyType = req.body;
   try {
     const salt = bcrypt.genSaltSync(10);
@@ -37,8 +52,16 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
       password: hash,
     })
 
-    await newCompany.save();
-    res.status(201).send("Company created successfully")
+    const companyExist = await CompanyModel.find({name});
+
+    if(companyExist){
+      return res.send("Company already exist");
+    } else { 
+
+      await newCompany.save();
+      res.status(201).send("Company created successfully")
+    }
+
   } catch (err) {
     next(err);
   }
@@ -78,4 +101,33 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
   } catch (err) {
     next(err)
   }
+}
+
+export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
+  const { name, address, companyId, location, phoneNumber, password}: RegisterOfficerType = req.body;
+
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+
+    const newOfficer = new OfficerModel<RegisterOfficerType>({
+      name,
+      address, 
+      companyId,
+      location,
+      phoneNumber,
+      password: hash,
+    })
+
+    const officerExist = await OfficerModel.find({phoneNumber});
+
+    if(officerExist){
+      return res.send("User with the phone number already exist")
+    } else {
+      await newOfficer.save();
+      res.status(200).send("Officer created successfully");
+    }
+  } catch (err) {
+    next(err)
+  }    
 }
