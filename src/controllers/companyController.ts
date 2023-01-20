@@ -31,3 +31,14 @@ export const getAllCompanies = async(req: Request, res: Response, next: NextFunc
     next(err)
   }
 };
+
+export const getCompany = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const company: AllCompanyType | null = await CompanyModel.findById(req.params.companyId);
+    if(!company) return res.status(404).send("Record not found")
+    
+    res.status(200).json(company)
+  } catch (err) {
+    next(err)
+  }
+}
