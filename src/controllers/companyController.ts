@@ -46,9 +46,13 @@ export const getCompany = async(req: Request, res: Response, next: NextFunction)
 export const updateCompany = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const {password, ...bodyDetails } = req.body;
+
     const company: CompanyType | null= await CompanyModel.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true})
+    
     if(!company) return res.status(400).send("Record does not exist")
+    
     const { password: companyPassword, ...otherDetails } = company._doc;
+    
     res.status(200).json(otherDetails);
   } catch (err) {
     next(err)
