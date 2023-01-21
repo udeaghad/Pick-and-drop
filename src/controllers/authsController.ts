@@ -52,7 +52,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
       password: hash,
     })
 
-    const companyExist = await CompanyModel.find({name});
+    const companyExist: RegisterCompanyType | null = await CompanyModel.findOne({name});
 
     if(companyExist){
       return res.send("Company already exist");
@@ -119,10 +119,10 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       password: hash,
     })
 
-    const officerExist = await OfficerModel.find({phoneNumber});
+    const officerExist: RegisterOfficerType | null = await OfficerModel.findOne({phoneNumber});
 
     if(officerExist){
-      return res.send("User with the phone number already exist")
+      return res.send("Officer with the phone number already exist")
     } else {
       await newOfficer.save();
       res.status(200).send("Officer created successfully");
