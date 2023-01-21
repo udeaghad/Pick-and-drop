@@ -156,3 +156,17 @@ export const officerLogin = async(req: Request, res: Response, next: NextFunctio
     next(err)
   }
 }
+
+export const updateOfficerPassword = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+     await OfficerModel.findByIdAndUpdate(
+      req.params.companyId, {$set: {password: hash}}, {new: true} 
+    )
+    res.status(200).send("Password updated successfully");
+  } catch (err) {
+    next(err)
+  }
+}
