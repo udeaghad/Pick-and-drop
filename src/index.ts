@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import companyAuthsRoutes from "./routes/companyAuthsRoutes";
+import authsRoutes from "./routes/authsRoutes";
 import companyRoutes from "./routes/companyRoutes";
 
 dotenv.config();
@@ -54,8 +54,9 @@ mongoose.connection.on("connected", () => {
 app.get('/api/v1/', (req: Request, res: Response) => {
   res.send("Hello World")
 });
-app.use("/api/v1/auths", companyAuthsRoutes );
+app.use("/api/v1/auths", authsRoutes );
 app.use("/api/v1/companies", companyRoutes);
+
 
 /**Error Handler */
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
