@@ -45,3 +45,19 @@ export const getOfficer = async(req: Request, res: Response, next: NextFunction)
     next(err)
   }
 }
+
+export const updateOfficer = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {password, ...bodyDetails } = req.body;
+
+    const officer: OfficerType | null= await OfficerModel.findByIdAndUpdate(req.params.officerId, {$set: bodyDetails}, {new: true})
+    
+    if(!officer) return res.status(400).send("Record does not exist")
+    
+    const { password: officerPassword, ...otherDetails } = officer._doc;
+    
+    res.status(200).json(otherDetails);
+  } catch (err) {
+    next(err)
+  }
+}
