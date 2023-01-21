@@ -163,7 +163,7 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
     const hash = bcrypt.hashSync(req.body.password, salt);
 
      await OfficerModel.findByIdAndUpdate(
-      req.params.companyId, {$set: {password: hash}}, {new: true} 
+      req.params.officerId, {$set: {password: hash}}, {new: true} 
     )
     res.status(200).send("Password updated successfully");
   } catch (err) {
