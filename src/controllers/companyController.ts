@@ -58,3 +58,14 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
     next(err)
   }
 }
+
+export const deleteCompany = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    
+    await CompanyModel.findByIdAndDelete(req.params.companyId);
+    res.status(200).send("Company deleted successfully");
+
+  } catch (err) {
+    next(err)
+  }
+}
