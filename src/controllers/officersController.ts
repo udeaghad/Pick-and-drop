@@ -61,3 +61,14 @@ export const updateOfficer = async(req: Request, res: Response, next: NextFuncti
     next(err)
   }
 }
+
+export const deleteOfficer = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    
+    await OfficerModel.findByIdAndDelete(req.params.officerId);
+    res.status(200).send("Officer deleted successfully");
+
+  } catch (err) {
+    next(err)
+  }
+}
