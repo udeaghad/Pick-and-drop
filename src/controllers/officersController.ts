@@ -23,7 +23,7 @@ interface OfficerType {
 
 export const getAllOfficers = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const allOfficers: OfficerType[] = await OfficerModel.find();
+    const allOfficers: OfficerType[] = await OfficerModel.find({companyId: req.params.companyId});
 
     const result: AllOfficerType[] = allOfficers.map(officer => {     
     const {password, ...otherDetails } = officer._doc;
