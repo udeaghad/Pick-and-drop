@@ -54,7 +54,7 @@ mongoose.connection.on("connected", () => {
 app.get('/api/v1/', (req: Request, res: Response) => {
   res.send("Hello World")
 });
-app.use("/api/v1/auths", authsRoutes );
+app.use("/api/v1/auths", authsRoutes);
 app.use("/api/v1/companies", companyRoutes);
 
 

@@ -8,7 +8,7 @@ router.post("/register/company", registerCompany);
 router.post("/login/company", companyLogin);
 router.post("/pasword/company/:companyId", updateCompanyPassword);
 
-router.post("/officer/register", registerOfficer);
-router.post("/officer/login", officerLogin);
+router.post("/register/officer", registerOfficer);
+router.post("/login/officer", officerLogin);
 
 export default router;

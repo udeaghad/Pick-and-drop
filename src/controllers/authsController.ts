@@ -138,7 +138,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
 
 export const officerLogin = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const officer: OfficerType | null = await OfficerModel.findOne({email: req.body.email});
+    const officer: OfficerType | null = await OfficerModel.findOne({email: req.body.phoneNumber});
     if(!officer) return res.status(404).send("Account doesnot exist");
 
     const {_id, password, ...otherDetails} = officer._doc;
