@@ -1,11 +1,12 @@
 import {Request, Response, NextFunction} from "express"
 import { Types } from "mongoose";
-import officerModel from "../models/OfficerModel";
+import OfficerModel from "../models/OfficerModel";
 
-interface RegisterOfficerType {
+
+interface AllOfficerType {
   _id: Types.ObjectId;
   name: string;
-  password: string;
+  password?: string;
   address: string;
   companyId: Types.ObjectId;
   location: string;
@@ -17,5 +18,19 @@ interface RegisterOfficerType {
 }
 
 interface OfficerType {
-  _doc: RegisterOfficerType;
+  _doc: AllOfficerType;
+}
+
+export const getAllOfficers = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const allOfficers: OfficerType[] = await OfficerModel.find();
+
+    const result: AllOfficerType[] = allOfficers.map(officer => {     
+    const {password, ...otherDetails } = officer._doc;
+      return otherDetails;
+    })
+    res.status(200).json(result)
+  } catch (err) {
+    next(err)
+  }
 }
