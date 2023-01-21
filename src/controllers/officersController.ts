@@ -34,3 +34,14 @@ export const getAllOfficers = async(req: Request, res: Response, next: NextFunct
     next(err)
   }
 }
+
+export const getOfficer = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const officer: OfficerType | null = await OfficerModel.findOne({companyId: req.params.companyId, _id: req.params.officerId});
+    if(!officer) return res.status(404).send("Record not found")
+    const { password, ...otherDetails } = officer._doc;
+    res.status(200).json(otherDetails)
+  } catch (err) {
+    next(err)
+  }
+}
