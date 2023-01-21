@@ -10,6 +10,6 @@ router.post("/pasword/company/:companyId", updateCompanyPassword);
 
 router.post("/register/officer", registerOfficer);
 router.post("/login/officer", officerLogin);
-router.post("password/officer/:officerId", updateOfficerPassword);
+router.post("/password/officer/:officerId", updateOfficerPassword);
 
 export default router;
