@@ -35,6 +35,10 @@ interface RegisterOfficerType {
   transit?: number;
 }
 
+interface OfficerType {
+  _doc: RegisterOfficerType;
+}
+
 const secretKey: Secret = String(process.env.JWT);
 
 export const registerCompany = async(req:Request, res:Response, next:NextFunction) => {
@@ -130,4 +134,25 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
   } catch (err) {
     next(err)
   }    
+}
+
+export const officerLogin = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const officer: OfficerType | null = await OfficerModel.findOne({email: req.body.email});
+    if(!officer) return res.status(404).send("Account doesnot exist");
+
+    const {_id, password, ...otherDetails} = officer._doc;
+
+    const validPassword = await bcrypt.compare(req.body.password, password);
+    if(!validPassword) return res.status(404).send("Invalid password")
+
+    const token = jwt.sign({id: _id}, secretKey)
+
+    res
+    .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
+    .status(200).json({ _id, ...otherDetails });
+
+  } catch (err) {
+    next(err)
+  }
 }
