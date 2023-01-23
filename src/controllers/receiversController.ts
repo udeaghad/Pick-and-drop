@@ -6,17 +6,26 @@ export const createReceiver = async(req: Request, res: Response, next: NextFunct
   try {
     const receiver = new Receiver(req.body)
 
-    const newReceiver = await receiver.save();
+     await receiver.save();
     try {
       await Sender.findByIdAndUpdate(req.params.senderId, {
-        $push: {customers: newReceiver}
+        $push: {customers: receiver}
       })
     } catch (err) {
       next(err)
     }
 
-    res.status(200).json(newReceiver)
+    res.status(200).json(receiver)
 
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const updateReceiver = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const receiver = await Receiver.findByIdAndUpdate(req.params.receiverId, {$set: req.body}, {new: true})
+    res.status(200).json(receiver);
   } catch (err) {
     next(err)
   }
