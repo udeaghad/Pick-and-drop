@@ -5,7 +5,7 @@ const {Schema} = mongoose;
 interface SenderType {
   name: string;
   phoneNumber: string;
-  Address: string;
+  address: string;
   location: string;
   orders: Types.ObjectId[];
   customers: Types.ObjectId[];
