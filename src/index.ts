@@ -61,7 +61,7 @@ app.use("/api/v1/auths", authsRoutes);
 app.use("/api/v1/companies", companyRoutes);
 app.use("/api/v1/officers", officersRoutes);
 app.use("/api/v1/senders", sendersRoutes );
-app.use("/api/v1/senders/:senderId/receivers", receiversRouter)
+app.use("/api/v1/receivers", receiversRouter)
 
 
 /**Error Handler */

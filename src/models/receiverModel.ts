@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 interface ReceiverInterface {
-  name: string,
+  name: string;
   phoneNumber: string;
   city: String;
 }

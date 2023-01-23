@@ -3,6 +3,6 @@ import { createReceiver } from "../controllers/receiversController"
 
 const router = express.Router();
 
-router.post("/:senderId", createReceiver )
+router.post("/senders/:senderId", createReceiver )
 
 export default router;
