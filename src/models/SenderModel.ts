@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 
 const {Schema} = mongoose;
 
@@ -11,7 +11,8 @@ interface SenderType {
   customers: Types.ObjectId[];
 }
 
-const senderSchema = new Schema({
+
+const SenderSchema = new Schema<SenderType>({
   name: {
     type: String,
     required: true,
@@ -44,6 +45,6 @@ const senderSchema = new Schema({
 },
 {timestamps: true});
 
-export default mongoose.model("Sender", senderSchema);
+export default mongoose.model("Sender", SenderSchema);
 
 

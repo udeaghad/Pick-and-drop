@@ -1,0 +1,24 @@
+import {Request, Response, NextFunction} from "express";
+import Receiver from "../models/receiverModel";
+import Sender from "../models/SenderModel";
+
+export const createReceiver = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const receiver = new Receiver(req.body)
+
+    await receiver.save();
+
+    try {
+      await Sender.findByIdAndUpdate(req.params.senderId, {
+        $push: {customers: receiver}
+      })
+    } catch (err) {
+      next(err)
+    }
+
+    res.status(200).json(receiver)
+
+  } catch (err) {
+    next(err)
+  }
+}

@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from "express"
 import { Types } from "mongoose";
-import CompanyModel from "../models/CompanyModel";
+import Company from "../models/CompanyModel";
 
 interface AllCompanyType {
   _id: Types.ObjectId;
@@ -20,7 +20,7 @@ interface CompanyType {
 
 export const getAllCompanies = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const allCompanies: CompanyType[] = await CompanyModel.find();
+    const allCompanies: CompanyType[] = await Company.find();
 
     const result: AllCompanyType[] = allCompanies.map(company => {     
     const {password, ...otherDetails } = company._doc;
@@ -34,7 +34,7 @@ export const getAllCompanies = async(req: Request, res: Response, next: NextFunc
 
 export const getCompany = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const company: CompanyType | null = await CompanyModel.findById(req.params.companyId);
+    const company: CompanyType | null = await Company.findById(req.params.companyId);
     if(!company) return res.status(404).send("Record not found")
     const { password, ...otherDetails } = company._doc;
     res.status(200).json(otherDetails)
@@ -47,7 +47,7 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
   try {
     const {password, ...bodyDetails } = req.body;
 
-    const company: CompanyType | null= await CompanyModel.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true})
+    const company: CompanyType | null= await Company.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true})
     
     if(!company) return res.status(400).send("Record does not exist")
     
@@ -62,7 +62,7 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
 export const deleteCompany = async(req: Request, res: Response, next: NextFunction) => {
   try {
     
-    await CompanyModel.findByIdAndDelete(req.params.companyId);
+    await Company.findByIdAndDelete(req.params.companyId);
     res.status(200).send("Company deleted successfully");
 
   } catch (err) {

@@ -1,5 +1,5 @@
-import CompanyModel from "../models/CompanyModel";
-import OfficerModel from "../models/OfficerModel";
+import Company from "../models/CompanyModel";
+import Officer from "../models/OfficerModel";
 import bcrypt from "bcryptjs";
 import jwt, {Secret} from "jsonwebtoken";
 import {Request, Response, NextFunction} from "express";
@@ -47,7 +47,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt)
 
-    const newCompany = new CompanyModel<RegisterCompanyType>({
+    const newCompany = new Company<RegisterCompanyType>({
       name,
       email,
       phoneNumber,
@@ -56,7 +56,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
       password: hash,
     })
 
-    const companyExist: RegisterCompanyType | null = await CompanyModel.findOne({name});
+    const companyExist: RegisterCompanyType | null = await Company.findOne({name});
 
     if(companyExist){
       return res.send("Company already exist");
@@ -74,7 +74,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
   
   try {
-    const company: CompanyType | null = await CompanyModel.findOne({email: req.body.email});
+    const company: CompanyType | null = await Company.findOne({email: req.body.email});
     
     if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
 
@@ -98,7 +98,7 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
-     await CompanyModel.findByIdAndUpdate(
+     await Company.findByIdAndUpdate(
       req.params.companyId, {$set: {password: hash}}, {new: true} 
     )
     res.status(200).send("Password updated successfully");
@@ -114,7 +114,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
 
-    const newOfficer = new OfficerModel<RegisterOfficerType>({
+    const newOfficer = new Officer<RegisterOfficerType>({
       name,
       address, 
       companyId,
@@ -123,7 +123,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       password: hash,
     })
 
-    const officerExist: RegisterOfficerType | null = await OfficerModel.findOne({phoneNumber});
+    const officerExist: RegisterOfficerType | null = await Officer.findOne({phoneNumber});
 
     if(officerExist){
       return res.send("Officer with the phone number already exist")
@@ -138,7 +138,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
 
 export const officerLogin = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const officer: OfficerType | null = await OfficerModel.findOne({email: req.body.phoneNumber});
+    const officer: OfficerType | null = await Officer.findOne({email: req.body.phoneNumber});
     if(!officer) return res.status(404).send("Account doesnot exist");
 
     const {_id, password, ...otherDetails} = officer._doc;
@@ -162,7 +162,7 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
-     await OfficerModel.findByIdAndUpdate(
+     await Officer.findByIdAndUpdate(
       req.params.officerId, {$set: {password: hash}}, {new: true} 
     )
     res.status(200).send("Password updated successfully");
