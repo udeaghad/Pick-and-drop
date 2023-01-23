@@ -34,7 +34,9 @@ const OfficerSchema = new Schema<IOfficer>({
   },
 
   companyId: {
-    type: Schema.Types.ObjectId, ref: "Company", requird: true
+    type: Schema.Types.ObjectId, 
+    ref: "Company", 
+    requird: true
   },
 
   location: {
