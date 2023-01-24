@@ -33,7 +33,7 @@ export const createSender = async(req: Request, res: Response, next: NextFunctio
 
 export const updateSender = async(req: Request, res: Response, next: NextFunction) => {
    try {
-     const sender = await Sender.findByIdAndUpdate(req.params.senderId, {$set: req.body}, {new: true})
+     const sender: SenderType | null = await Sender.findByIdAndUpdate(req.params.senderId, {$set: req.body}, {new: true})
      res.status(200).json(sender);
    } catch (err) {
      next(err)
