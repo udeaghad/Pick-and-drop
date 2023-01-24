@@ -34,3 +34,13 @@ export const createOrder = async(req: Request, res: Response, next: NextFunction
     next(err)
   }
 }
+
+export const updateOrder = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const order: OrderType | null = await Orders.findByIdAndUpdate(req.params.orderId, { $set: req.body }, { new: true});
+
+    res.status(200).json(order)
+  } catch (err) {
+    next(err)
+  }
+}
