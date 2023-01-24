@@ -44,3 +44,16 @@ export const updateOrder = async(req: Request, res: Response, next: NextFunction
     next(err)
   }
 }
+
+export const getOrder = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const order: OrderType | null = await Orders.findById(req.params.orderId);
+
+    if(!order) return res.status(400).send(`Order with ID-${req.params.orderId} does not exist`);
+    
+    res.status(200).json(order);
+
+  } catch (err) {
+    next(err)
+  }
+}
