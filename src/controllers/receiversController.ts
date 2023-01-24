@@ -2,6 +2,12 @@ import {Request, Response, NextFunction} from "express";
 import Receiver from "../models/receiverModel";
 import Sender from "../models/SenderModel";
 
+interface ReceiverInterface {
+  name: string;
+  phoneNumber: string;
+  city: String;
+}
+
 export const createReceiver = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const receiver = new Receiver(req.body)

@@ -8,11 +8,7 @@ interface ReceiverInterface {
   city: String;
 }
 
-interface ReceiverMethod extends ReceiverInterface {
-  updateSender: () => void;
-}
-
-const ReceiverModel = new Schema<ReceiverInterface, ReceiverMethod>({
+const ReceiverModel = new Schema<ReceiverInterface>({
   name: {
     type: String,
     required: true
