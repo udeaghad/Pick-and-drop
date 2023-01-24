@@ -16,7 +16,8 @@ interface OrderInterface {
   deliveryAgent: string;
   viewedBy: string;
   pickedBy: string;
-  DriverNumber: string;
+  driverNumber: string;
+  orderDate: Date;
 }
 
 
@@ -78,8 +79,13 @@ const OrderSchema = new Schema<OrderInterface>({
     type: String,
   },
 
-  DriverNumber: {
+  driverNumber: {
     type: String,
+  },
+
+  orderDate: {
+    type: Date,
+    default: Date.now(),
   }
 },
 {timestamps: true}
