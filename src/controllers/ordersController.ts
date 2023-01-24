@@ -63,6 +63,8 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
     try {
       const {startDate, endDate} = req.query;
 
+      if(!startDate) return res.status(404).send("You need to enter the start date for the query")
+
       if(startDate && endDate === null){
         const todayOrder: OrderType[] = await Order.find({
           orderDate: { $gte: Date.parse(startDate.toString())},
@@ -76,7 +78,7 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
         const orderByDateRange: OrderType[] = await Order.find({
           orderDate: {
             $gte: Date.parse(startDate.toString()),
-            $le: Date.parse(startDate.toString()) + 83000000,
+            $lt: Date.parse(startDate.toString()) + 83000000,
           },
           companyId: req.params.companyId,
         })
