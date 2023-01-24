@@ -43,7 +43,7 @@ export const updateSender = async(req: Request, res: Response, next: NextFunctio
 export const getSender = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const sender: SenderType | null = await Sender.findById(req.params.senderId)
-    if(!sender) return res.status(404).send("Sender Info doesnot exist")
+    if(!sender) return res.status(404).send("Sender Info does not exist")
     res.status(200).json(sender)
   } catch (err) {
     next(err)
