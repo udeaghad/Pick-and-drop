@@ -7,7 +7,8 @@ import authsRoutes from "./routes/authsRoutes";
 import companyRoutes from "./routes/companyRoutes";
 import officersRoutes from "./routes/officersRoutes";
 import sendersRoutes from "./routes/sendersRoutes";
-import receiversRouter from "./routes/receiversRoutes";
+import receiversRoutes from "./routes/receiversRoutes";
+import ordersRoutes from "./routes/ordersRoutes";
 
 dotenv.config();
 const app: Application = express();
@@ -61,7 +62,8 @@ app.use("/api/v1/auths", authsRoutes);
 app.use("/api/v1/companies", companyRoutes);
 app.use("/api/v1/officers", officersRoutes);
 app.use("/api/v1/senders", sendersRoutes );
-app.use("/api/v1/receivers", receiversRouter)
+app.use("/api/v1/receivers", receiversRoutes);
+app.use("/api/v1/orders", ordersRoutes);
 
 
 /**Error Handler */
