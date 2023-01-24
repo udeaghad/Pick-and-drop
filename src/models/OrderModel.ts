@@ -2,6 +2,8 @@ import mongoose, { Types } from "mongoose";
 
 const { Schema } = mongoose;
 
+type DeliverPoint = "Park" | "Home";
+type DeliveryStatus = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
 interface OrderInterface {
   content: string;
   companyId: Types.ObjectId;
@@ -17,8 +19,6 @@ interface OrderInterface {
   DriverNumber: string;
 }
 
-type DeliverPoint = "Park" | "Home";
-type DeliveryStatus = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
 
 const OrderSchema = new Schema<OrderInterface>({
   content: {
