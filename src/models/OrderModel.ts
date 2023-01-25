@@ -18,7 +18,7 @@ interface OrderInterface {
   viewedBy: string;
   pickedBy: string;
   driverNumber: string;
-  orderDate: number;
+  orderDate: Date;
 }
 
 
@@ -91,7 +91,7 @@ const OrderSchema = new Schema<OrderInterface>({
   },
 
   orderDate: {
-    type: Number,
+    type: Date,
     default: Date.now(),
   }
 },

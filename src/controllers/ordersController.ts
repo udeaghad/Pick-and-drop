@@ -20,7 +20,7 @@ interface OrderInterface {
   viewedBy?: string;
   pickedBy?: string;
   driverNumber?: string;
-  orderDate: number;
+  orderDate: Date;
 }
 
 interface OrderType {
