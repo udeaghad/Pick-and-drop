@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from "express"
 import { Types } from "mongoose";
 import Company from "../models/CompanyModel";
+import Officer from "../models/OfficerModel";
 
 interface AllCompanyType {
   _id: Types.ObjectId;
@@ -63,6 +64,9 @@ export const deleteCompany = async(req: Request, res: Response, next: NextFuncti
   try {
     
     await Company.findByIdAndDelete(req.params.companyId);
+    const offices = await Officer.find({companyId: req.params.companyId})
+    offices.forEach(item => item.deleteOne())
+    
     res.status(200).send("Company deleted successfully");
 
   } catch (err) {

@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from "express"
 import { Types } from "mongoose";
+import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
 
 
@@ -65,7 +66,9 @@ export const updateOfficer = async(req: Request, res: Response, next: NextFuncti
 export const deleteOfficer = async(req: Request, res: Response, next: NextFunction) => {
   try {
     
-    await Officer.findByIdAndDelete(req.params.officerId);
+    const officer = await Officer.findById(req.params.officerId);
+    await Company.findByIdAndUpdate(officer?.companyId, { $pull: {offices: req.params.officerId}})
+    await officer?.deleteOne();
     res.status(200).send("Officer deleted successfully");
 
   } catch (err) {
