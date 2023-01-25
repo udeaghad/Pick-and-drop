@@ -6,6 +6,6 @@ const router = express.Router();
 router.post("/", createOrder);
 router.put("/:orderId", updateOrder)
 router.get("/:orderId", getOrder)
-router.get("/:companyId", getOrdersByDates)
+router.get("/companies/:companyId", getOrdersByDates)
 
 export default router;

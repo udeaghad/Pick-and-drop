@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const { Schema } = mongoose;
 
@@ -9,6 +9,7 @@ interface ICompany {
   city: string;
   state: string;
   password: string;
+  offices?: Types.ObjectId[];
   logo?: string;
   rating?:number;
 };
@@ -47,6 +48,10 @@ const CompanySchema = new Schema<ICompany>({
   password: {
     type: String,
     required: true,    
+  },
+
+  offices: {
+    type: [{type: Schema.Types.ObjectId, ref: "Officers", required: true}]
   },
 
   logo: {

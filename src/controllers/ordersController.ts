@@ -11,6 +11,7 @@ interface OrderInterface {
   companyId: Types.ObjectId;
   receiverId: Types.ObjectId;
   senderId: Types.ObjectId;
+  officerId: Types.ObjectId;
   deliveryPoint: DeliverPoint;
   serviceFee: number;
   RegisteredWaybill: boolean;
@@ -19,7 +20,7 @@ interface OrderInterface {
   viewedBy?: string;
   pickedBy?: string;
   driverNumber?: string;
-  orderDate: Date;
+  orderDate: number;
 }
 
 interface OrderType {
@@ -60,12 +61,13 @@ export const getOrder = async(req: Request, res: Response, next: NextFunction) =
 }
 
 export const getOrdersByDates = async(req: Request, res: Response, next: NextFunction) => {
+ 
     try {
       const {startDate, endDate} = req.query;
 
       if(!startDate) return res.status(404).send("You need to enter the start date for the query")
-
-      if(startDate && endDate === null){
+      
+      if(startDate && !endDate){
         const todayOrder: OrderType[] = await Order.find({
           orderDate: { $gte: Date.parse(startDate.toString())},
           companyId: req.params.companyId,         
@@ -78,7 +80,7 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
         const orderByDateRange: OrderType[] = await Order.find({
           orderDate: {
             $gte: Date.parse(startDate.toString()),
-            $lt: Date.parse(startDate.toString()) + 83000000,
+            $lt: Date.parse(endDate.toString()) + 83000000,
           },
           companyId: req.params.companyId,
         })

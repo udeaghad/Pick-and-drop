@@ -9,6 +9,7 @@ interface OrderInterface {
   companyId: Types.ObjectId;
   receiverId: Types.ObjectId;
   senderId: Types.ObjectId;
+  officerId: Types.ObjectId;
   deliveryPoint: DeliverPoint;
   serviceFee: number;
   RegisteredWaybill: boolean;
@@ -17,7 +18,7 @@ interface OrderInterface {
   viewedBy: string;
   pickedBy: string;
   driverNumber: string;
-  orderDate: Date;
+  orderDate: number;
 }
 
 
@@ -41,6 +42,12 @@ const OrderSchema = new Schema<OrderInterface>({
   senderId: {
     type: Schema.Types.ObjectId,
     ref: "Sender",
+    required: true,
+  },
+
+  officerId: {
+    type: Schema.Types.ObjectId,
+    ref: "Officer",
     required: true,
   },
 
@@ -84,7 +91,7 @@ const OrderSchema = new Schema<OrderInterface>({
   },
 
   orderDate: {
-    type: Date,
+    type: Number,
     default: Date.now(),
   }
 },

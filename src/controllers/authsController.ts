@@ -13,6 +13,7 @@ interface RegisterCompanyType {
   city: string;
   state: string;
   password: string;
+  offices?: Types.ObjectId[],
   logo?: string;
   rating?:number;
 };
@@ -129,6 +130,8 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       return res.send("Officer with the phone number already exist")
     } else {
       await newOfficer.save();
+
+      await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
       res.status(200).send("Officer created successfully");
     }
   } catch (err) {
