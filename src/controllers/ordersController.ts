@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import Order from "../models/OrderModel";
+import Officer from "../models/OfficerModel";
 
 type DeliverPoint = "Park" | "Home";
 type DeliveryStatus = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
@@ -31,6 +32,11 @@ export const createOrder = async(req: Request, res: Response, next: NextFunction
   try {
     const order = new Order(req.body);
     await order.save();
+
+    const officer = await Officer.findById(order.officerId);
+    officer?.updateStatus("Pending");    
+    officer?.save();
+    
     res.status(200).json(order)
   } catch (err) {
     next(err)

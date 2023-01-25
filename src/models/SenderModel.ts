@@ -11,7 +11,6 @@ interface SenderType {
   customers: Types.ObjectId[];
 }
 
-
 const SenderSchema = new Schema<SenderType>({
   name: {
     type: String,
