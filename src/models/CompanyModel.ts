@@ -12,6 +12,7 @@ interface ICompany {
   offices?: Types.ObjectId[];
   logo?: string;
   rating?:number;
+  isAdmin: boolean;
 };
 
 const CompanySchema = new Schema<ICompany>({
@@ -63,6 +64,11 @@ const CompanySchema = new Schema<ICompany>({
     min: 0,
     max: 5,
     default: 0,
+  },
+  
+  isAdmin: {
+    type: Boolean,
+    default: true
   }
 },
 {timestamps: true});

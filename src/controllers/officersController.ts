@@ -16,6 +16,7 @@ interface AllOfficerType {
   viewed?: number;
   picked?: number;
   transit?: number;
+  isAdmin?: boolean;
 }
 
 interface OfficerType {

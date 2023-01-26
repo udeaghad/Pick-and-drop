@@ -13,6 +13,7 @@ interface AllCompanyType {
   password?: string;
   logo?: string;
   rating?:number;
+  isAdmin?: boolean;
 };
 
 interface CompanyType {

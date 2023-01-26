@@ -14,6 +14,7 @@ interface IOfficer {
   viewed: number;
   picked: number;
   transit: number;
+  isAdmin: boolean;
 }
 
 interface IStatusMethods {
@@ -71,6 +72,11 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
     type: Number,
     default: 0,
   },
+
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  }
 
 },
 {timestamps: true});
