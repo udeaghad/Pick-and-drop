@@ -36,7 +36,7 @@ export const createOrder = async(req: Request, res: Response, next: NextFunction
     const officer = await Officer.findById(order.officerId);
     officer?.updateStatus("Pending");    
     officer?.save();
-    
+
     res.status(200).json(order)
   } catch (err) {
     next(err)
@@ -45,7 +45,14 @@ export const createOrder = async(req: Request, res: Response, next: NextFunction
 
 export const updateOrder = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const order: OrderType | null = await Order.findByIdAndUpdate(req.params.orderId, { $set: req.body }, { new: true});
+
+    const order = await Order.findByIdAndUpdate(req.params.orderId, { $set: req.body }, { new: true});
+    const status: DeliveryStatus = req.body.status
+    if(status){
+      const officer = await Officer.findById(order?.officerId)
+      officer?.updateStatus(status);
+      officer?.save();
+    }
 
     res.status(200).json(order)
   } catch (err) {
@@ -71,25 +78,25 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
     try {
       const {startDate, endDate} = req.query;
 
-      if(!startDate) return res.status(404).send("You need to enter the start date for the query")
+      if(!startDate) return res.status(404).send("You need to enter the startDate and endDate in the query")
       
       if(startDate && !endDate){
-        const todayOrder: OrderType[] = await Order.find({
+        const todayOrder = await Order.find({
           orderDate: { $gte: Date.parse(startDate.toString())},
           companyId: req.params.companyId,         
-        })
+        }).sort({orderDate: 'desc'})
 
         return res.status(200).json(todayOrder)
       }
       
       if(startDate && endDate){        
-        const orderByDateRange: OrderType[] = await Order.find({
+        const orderByDateRange = await Order.find({
           orderDate: {
             $gte: Date.parse(startDate.toString()),
             $lt: Date.parse(endDate.toString()) + 83000000,
           },
           companyId: req.params.companyId,
-        })
+        }).sort({orderDate: 'desc'})
 
         return res.status(200).json(orderByDateRange);
       }

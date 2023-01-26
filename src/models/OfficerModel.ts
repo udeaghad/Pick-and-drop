@@ -22,6 +22,8 @@ interface IStatusMethods {
 
 type OfficerModel = Model<IOfficer, {}, IStatusMethods>;
 
+type Status = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
+
 const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
   name: {
     type: String,
@@ -73,7 +75,6 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
 },
 {timestamps: true});
 
-type Status = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
 
 OfficerSchema.method('updateStatus', function updateStatus(status: Status){
      if(status === "Pending") {
