@@ -76,48 +76,59 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 
 
 export const updateCompanyPassword = async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(req.body.password, salt);
+  
+  if(req.cookies.cookies.id === req.params.companyId){
 
-    await Company.findByIdAndUpdate(
-      req.params.companyId, {$set: {password: hash}}, {new: true} 
-    )
-    res.status(200).send("Password updated successfully");
-  } catch (err) {
-    next(err)
+    try {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(req.body.password, salt);
+  
+      await Company.findByIdAndUpdate(
+        req.params.companyId, {$set: {password: hash}}, {new: true} 
+      )
+      res.status(200).send("Password updated successfully");
+    } catch (err) {
+      next(err)
+    }
+  }else {
+    res.status(401).send("You are not authorised to perform this action")
   }
 }
 
 export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
   const { name, address, companyId, location, phoneNumber, password}: RegisterOfficerType = req.body;
+   
+  if(req.cookies.cookies.id === companyId && req.cookies.cookies.isAdmin){
 
-  try {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
-    
-    const newOfficer = new Officer<RegisterOfficerType>({
-      name,
-      address, 
-      companyId,
-      location,
-      phoneNumber,
-      password: hash,
-    })
-    
-    const officerExist: RegisterOfficerType | null = await Officer.findOne({phoneNumber});
-    
-    if(officerExist){
-      return res.send("Officer with the phone number already exist")
-    } else {
-      await newOfficer.save();
+    try {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(password, salt);
       
-      await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
-      res.status(200).send("Officer created successfully");
-    }
-  } catch (err) {
-    next(err)
-  }    
+      const newOfficer = new Officer<RegisterOfficerType>({
+        name,
+        address, 
+        companyId,
+        location,
+        phoneNumber,
+        password: hash,
+      })
+      
+      const officerExist: RegisterOfficerType | null = await Officer.findOne({phoneNumber});
+      
+      if(officerExist){
+        return res.send("Officer with the phone number already exist")
+      } else {
+        await newOfficer.save();
+        
+        await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
+        res.status(200).send("Officer created successfully");
+      }
+    } catch (err) {
+      next(err)
+    }    
+  }else{
+    res.status(401).send("You are not authorised to perform this action")
+  }
 }
 
 // export const officerLogin = async(req: Request, res: Response, next: NextFunction) => {
@@ -141,22 +152,27 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       //   }
       // }
       
-      export const updateOfficerPassword = async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(req.body.password, salt);
+export const updateOfficerPassword = async(req: Request, res: Response, next: NextFunction) => {
+  
+  if(req.cookies.cookies.id === req.params.officerId){
 
-     await Officer.findByIdAndUpdate(
-       req.params.officerId, {$set: {password: hash}}, {new: true} 
-       )
-    res.status(200).send("Password updated successfully");
-  } catch (err) {
-    next(err)
+    try {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(req.body.password, salt);
+  
+       await Officer.findByIdAndUpdate(
+         req.params.officerId, {$set: {password: hash}}, {new: true} 
+         )
+      res.status(200).send("Password updated successfully");
+    } catch (err) {
+      next(err)
+    }
+  }else {
+    res.status(401).send("You are not authorised to perform this action")
   }
 }
   
-export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
-    
+export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {  
     
   const company: CompanyType | null = await Company.findOne({email: req.body.email});
   const officer: OfficerType | null = await Officer.findOne({phoneNumber: req.body.phoneNumber});
@@ -169,7 +185,7 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
         const validPassword = await bcrypt.compare(req.body.password, password);
         if(!validPassword) return res.status(404).json({status: 404, message: "Invalid Password"})
     
-        const token = jwt.sign({id: _id, isAdmin: true}, secretKey)   
+        const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)   
     
         res
         .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
@@ -187,7 +203,7 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
           const validPassword = await bcrypt.compare(req.body.password, password);
           if(!validPassword) return res.status(404).send("Invalid password")
       
-          const token = jwt.sign({id: _id}, secretKey)
+          const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)
       
           res
           .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
@@ -199,4 +215,5 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
   }else {
     res.status(404).send("Account does not exist")
   }  
+  
 }

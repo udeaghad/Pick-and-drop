@@ -49,30 +49,40 @@ export const getOfficer = async(req: Request, res: Response, next: NextFunction)
 }
 
 export const updateOfficer = async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    const {password, ...bodyDetails } = req.body;
+  if(req.cookies.cookies.id === req.params.officerId || (req.cookies.cookies.id ===req.params.companyId && req.cookies.cookies.isAdmin)){
 
-    const officer: OfficerType | null= await Officer.findByIdAndUpdate(req.params.officerId, {$set: bodyDetails}, {new: true})
-    
-    if(!officer) return res.status(400).send("Record does not exist")
-    
-    const { password: officerPassword, ...otherDetails } = officer._doc;
-    
-    res.status(200).json(otherDetails);
-  } catch (err) {
-    next(err)
+    try {
+      const {password, ...bodyDetails } = req.body;
+  
+      const officer: OfficerType | null= await Officer.findByIdAndUpdate(req.params.officerId, {$set: bodyDetails}, {new: true})
+      
+      if(!officer) return res.status(400).send("Record does not exist")
+      
+      const { password: officerPassword, ...otherDetails } = officer._doc;
+      
+      res.status(200).json(otherDetails);
+    } catch (err) {
+      next(err)
+    }
+  } else {
+    res.status(401).send("You are not authorised to make changes")
   }
 }
 
 export const deleteOfficer = async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    
-    const officer = await Officer.findById(req.params.officerId);
-    await Company.findByIdAndUpdate(officer?.companyId, { $pull: {offices: req.params.officerId}})
-    await officer?.deleteOne();
-    res.status(200).send("Officer deleted successfully");
+  if(req.cookies.cookies.id ===req.params.companyId && req.cookies.cookies.isAdmin){
 
-  } catch (err) {
-    next(err)
+    try {
+      
+      const officer = await Officer.findById(req.params.officerId);
+      await Company.findByIdAndUpdate(officer?.companyId, { $pull: {offices: req.params.officerId}})
+      await officer?.deleteOne();
+      res.status(200).send("Officer deleted successfully");
+  
+    } catch (err) {
+      next(err)
+    }
+  }else {
+    res.status(401).send("You are not authorised to perform this action")
   }
 }
