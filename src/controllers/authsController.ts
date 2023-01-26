@@ -154,15 +154,16 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
     next(err)
   }
 }
-  export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
-    
-    
-      const company: CompanyType | null = await Company.findOne({email: req.body.email});
-      const officer: OfficerType | null = await Officer.findOne({phoneNumber: req.body.phoneNumber});
-      // if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
   
-      if(company){
-        try {
+export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {
+    
+    
+  const company: CompanyType | null = await Company.findOne({email: req.body.email});
+  const officer: OfficerType | null = await Officer.findOne({phoneNumber: req.body.phoneNumber});
+  // if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
+  
+  if(company){
+    try {
         const {_id, password, ...otherDetails }  = company._doc;
     
         const validPassword = await bcrypt.compare(req.body.password, password);
@@ -176,8 +177,8 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       } catch (err) {
         next(err)
       }
-      }else if(officer) {
-        try {
+  }else if(officer) {
+    try {
           // const officer: OfficerType | null = await Officer.findOne({email: req.body.phoneNumber});
           if(!officer) return res.status(404).send("Account doesnot exist");
       
@@ -195,8 +196,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
         } catch (err) {
           next(err)
         }
-      }else {
-        res.status(404).send("Account does not exist")
-      }
-  
-  }
+  }else {
+    res.status(404).send("Account does not exist")
+  }  
+}
