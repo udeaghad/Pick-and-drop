@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import Company from "../models/CompanyModel";
 import app from "../app";
 import * as authsController from "../controllers/authsController";
+import jwt, {Secret} from "jsonwebtoken"
 
 dotenv.config();
 jest.setTimeout(10000);
@@ -83,8 +84,8 @@ describe("Create Company", () => {
   })
   it("Should return error if phone number is mising", async() => {
     const companyInput = {
-      name: "company2",
-      email:"company2@example.com",
+      name: "company5",
+      email:"company5@example.com",
       city: "Onitsha",
       state: "Anambra",
       password: "mypassword"
@@ -96,3 +97,60 @@ describe("Create Company", () => {
      expect(statusCode).toEqual(500)
   })
 })
+
+describe("Login as a company", () => {
+  it("Should login successfully", async() => {
+    const loginDetails = {
+      email: "company2@example.com",
+      password: "mypassword"
+    }
+
+    const { statusCode, body } = await request(app).post("/api/v1/auths/login/company").send(loginDetails);
+
+    expect(statusCode).toEqual(200);
+    expect(body.name).toBe("company2")
+  })
+  it("Should return error on wrong password", async() => {
+    const loginDetails = {
+      email: "company2@example.com",
+      password: "password"
+    }
+
+    const { statusCode } = await request(app).post("/api/v1/auths/login/company").send(loginDetails);
+
+    expect(statusCode).toEqual(404);
+    
+  })
+  it("Should return error on wrong company name", async() => {
+    const loginDetails = {
+      email: "company21@example.com",
+      password: "mypassword"
+    }
+
+    const { statusCode } = await request(app).post("/api/v1/auths/login/company").send(loginDetails);
+
+    expect(statusCode).toEqual(404);
+    
+  })  
+})
+
+// describe("Update password", () => {
+//   it("Should update password successfully", async() => {
+
+//     // const secretKey: Secret = String(process.env.JWT);    
+
+//     // const loginDetails = {
+//     //   email: "company2@example.com",
+//     //   password: "mypassword"
+//     // }
+    
+//     const updatePassword = {
+//       password: "mypassword123"
+//     }
+//     // const{ body } = await request(app).post("/api/v1/auths/login/company").send(loginDetails)
+
+//     const { statusCode } = await request(app).post(`/api/v1/auths/password/company/63da3a52a897ab8799ab9911`).send(updatePassword)
+//     expect(statusCode).toEqual(200)
+//   })
+
+// })
