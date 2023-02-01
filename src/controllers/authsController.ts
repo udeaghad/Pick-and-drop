@@ -62,11 +62,11 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
     const companyExist: RegisterCompanyType | null = await Company.findOne({name});
 
     if(companyExist){
-      return res.send("Company already exist");
+      return res.status(200).send("Company already exist");
     } else { 
 
       await newCompany.save();
-      res.status(201).send("Company created successfully")
+      res.status(200).send("Company created successfully")
     }
 
   } catch (err) {
