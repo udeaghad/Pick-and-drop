@@ -1,11 +1,8 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import request from "supertest";
 import dotenv from "dotenv";
-import Company from "../models/CompanyModel";
 import app from "../app";
-import * as authsController from "../controllers/authsController";
-import jwt, {Secret} from "jsonwebtoken";
-// import cookieParser from "cookie-parser";
+
 
 dotenv.config();
 jest.setTimeout(10000);
@@ -19,22 +16,6 @@ beforeEach(async () => {
 afterEach(async () => {
   await mongoose.connection.close();
 });
-
-
-const companyPayload = {
-  _id: expect.any(String),
-  name: "company2",
-  email:"company2@example.com",
-  phoneNumber: "2348080425123",
-  city: "Onitsha",
-  state: "Anambra",
-  offices: [],
-  rating: 0,
-  isAdmin: true,
-  createdAt: expect.any(String),
-  updatedAt: expect.any(String),
-  __v:0
-  }
 
 describe("Create Company", () => {
   it("Should create a new company successfully!", (done) => {
