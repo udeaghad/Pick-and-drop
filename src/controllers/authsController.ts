@@ -116,7 +116,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       const officerExist: RegisterOfficerType | null = await Officer.findOne({phoneNumber});
       
       if(officerExist){
-        return res.send("Officer with the phone number already exist")
+        return res.status(200).send("Officer with the phone number already exist")
       } else {
         await newOfficer.save();
         
