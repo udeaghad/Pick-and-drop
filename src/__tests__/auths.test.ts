@@ -8,6 +8,7 @@ dotenv.config();
 jest.setTimeout(10000);
 mongoose.set('strictQuery', true);
 const agent = request.agent(app);
+
 beforeEach(async () => {
   await mongoose.connect(String(process.env.DB_TEST));
 });
@@ -18,6 +19,7 @@ afterEach(async () => {
 });
 
 describe("Create Company", () => {
+ 
   it("Should create a new company successfully!", (done) => {
     const companyInput = {
       name: "company2",
@@ -102,6 +104,7 @@ describe("Create Company", () => {
 
   
 describe("Login as a company", () => {
+  
   it("Should login successfully", (done) => {
     const loginDetails = {
       email: "company2@example.com",
@@ -159,6 +162,7 @@ describe("Login as a company", () => {
 })
 
 describe("Create Officer", () => {
+  
   it("Should create officer account", (done) => {
     const companyLoginDetails = {
       email: "company2@example.com",
@@ -250,7 +254,7 @@ describe("Create Officer", () => {
 })
 
 describe("Update password", () => {
-  
+
   it("Should update company password successfully", (done) => {
     
       const loginDetails = {
@@ -312,8 +316,5 @@ describe("Update password", () => {
    
     })
 
-  })
-      
-      
+  }) 
 })
-

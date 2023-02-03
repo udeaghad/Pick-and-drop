@@ -6,6 +6,6 @@ const router = express.Router();
 router.get("/", getAllCompanies);
 router.get("/:companyId", getCompany);
 router.put("/:companyId", verifyToken, updateCompany);
-router.delete("/:companyId", deleteCompany);
+router.delete("/:companyId", verifyToken, deleteCompany);
 
 export default router;
