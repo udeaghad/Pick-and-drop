@@ -16,22 +16,23 @@ beforeEach(async () => {
 afterEach(async () => {
   await mongoose.connection.close();
 });
+const companyLoginDetails = {
+  email: "company2@example.com",
+  password: "mypassword"
+}
+
+const OfficerAccountDetails = {
+  name: "Malik",
+  password: "mypassword",
+  address: "Headbridge",
+  companyId: "",
+  location: "Main mkt",
+  phoneNumber: "080735483654"
+}
 
 describe("Officer", () => {
   it("Should get all officers under a company", (done) => {
-    const companyLoginDetails = {
-      email: "company2@example.com",
-      password: "mypassword"
-    }
-
-    const OfficerAccountDetails = {
-      name: "Malik",
-      password: "mypassword",
-      address: "Headbridge",
-      companyId: "",
-      location: "Main mkt",
-      phoneNumber: "080735483654"
-    }
+    
 
     let companyId: string = '';
     
@@ -54,7 +55,7 @@ describe("Officer", () => {
         .get(`/api/v1/officers/companies/${companyId}`)
         .expect(200)
         .end((err, res) => {
-          console.log(res.body)
+          
           expect(res.statusCode).toEqual(200)
           expect(res.body.length).toBeGreaterThanOrEqual(0)
           return done()
@@ -63,6 +64,69 @@ describe("Officer", () => {
     })
   })
   
-  
+  it("Should get an officer", (done) => {
 
+    let companyId = ""
+    //get all companies
+    agent
+    .get("/api/v1/companies")
+    .expect(200)
+    .end((err, res)  => {
+      
+      companyId = res.body[0]._id
+      //get all officers under this company
+      agent
+      .get(`/api/v1/officers/companies/${companyId}`)
+      .expect(200)
+      .end((err, res) => {
+        //get officer with the ID
+        const officerId = res.body[1]._id;
+        agent
+        .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.statusCode).toEqual(200)
+          expect(res.body.name).toBe("malik")
+          return done()
+        })
+
+      })
+    })
+  })
+  
+  it("Should update an officer's record", (done) => {
+    
+    const { phoneNumber, password } = OfficerAccountDetails
+
+    const updateDetail = {
+      location: "Main mkt"
+    }
+    //fetch company ID
+    let companyId = ""    
+    agent
+    .get("/api/v1/companies")
+    .expect(200)
+    .end((err, res)  => {      
+      companyId = res.body[0]._id
+      //Login Officer
+      agent
+      .post("/api/v1/auths/login/company")
+      .send({phoneNumber, password})
+      .expect(200)
+      .end((err, res) => {
+        const officerId = res.body._id
+        //update officer record
+        agent
+        .put(`/api/v1/officers/${officerId}/companies/${companyId}`)
+        .set('Cookie', [res.header['set-cookie']])
+        .send(updateDetail)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.statusCode).toEqual(200)
+          expect(res.body.location).toBe(updateDetail.location)
+          return done()
+        })
+      })
+    })
+  })
 })
