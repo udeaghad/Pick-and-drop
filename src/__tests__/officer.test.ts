@@ -32,8 +32,6 @@ const OfficerAccountDetails = {
 
 describe("Officer", () => {
   it("Should get all officers under a company", (done) => {
-    
-
     let companyId: string = '';
     
     //Login to the company
@@ -66,7 +64,7 @@ describe("Officer", () => {
   
   it("Should get an officer", (done) => {
 
-    let companyId = ""
+    let companyId: string = ""
     //get all companies
     agent
     .get("/api/v1/companies")
@@ -102,7 +100,7 @@ describe("Officer", () => {
       location: "Main mkt"
     }
     //fetch company ID
-    let companyId = ""    
+    let companyId: string = ""    
     agent
     .get("/api/v1/companies")
     .expect(200)
@@ -127,6 +125,32 @@ describe("Officer", () => {
           return done()
         })
       })
+    })
+  })
+
+  it("Should delete officer by company admin", (done) => {
+    let officerId: string = ""
+    let companyId: string = ""
+    //Login company
+    agent
+    .post("/api/v1/auths/login/company")
+    .send(companyLoginDetails)
+    .expect(200)
+    .end((err, res) => {
+      //delete officer
+      companyId = res.body._id;
+      officerId = res.body.offices[1]
+      
+      agent
+      .delete(`/api/v1/officers/${officerId}/companies/${companyId}`)
+      .set('Cookie', [res.header['set-cookie']])
+      .expect(200)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200)
+        expect(res.text).toBe("Officer deleted successfully")
+        return done()
+      })
+
     })
   })
 })
