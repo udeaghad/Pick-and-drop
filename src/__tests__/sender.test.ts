@@ -35,8 +35,6 @@ describe("Sender", () => {
     .expect(200)
     .end((err, res) => {
       expect(res.statusCode).toEqual(200)
-      // expect(res.body.name).toBe(senderDetails.name)
-      // expect(res.body.phoneNumber).toBe(senderDetails.phoneNumber)
       return done()
     })
   })
@@ -52,7 +50,7 @@ describe("Sender", () => {
     .send(senderDetails)
     .expect(200)
     .end((err, res) => {
-      const senderId = res.body.sender._id
+      const senderId = res.body._id
       //update sender record
       agent
       .put(`/api/v1/senders/${senderId}`)
@@ -73,7 +71,7 @@ describe("Sender", () => {
     .send(senderDetails)
     .expect(200)
     .end((err, res) => {
-      const senderId = res.body.sender._id
+      const senderId = res.body._id
       //get sender details
       agent
       .get(`/api/v1/senders/${senderId}`)

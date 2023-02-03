@@ -20,7 +20,7 @@ export const createSender = async(req: Request, res: Response, next: NextFunctio
   try {
     const senderExist: SenderType | null = await Sender.findOne({phoneNumber: req.body.phoneNumber});
 
-    if(senderExist) return res.status(200).json({message: "Sender's record already exist", sender: senderExist._doc });
+    if(senderExist) return res.status(200).json( senderExist._doc );
 
     const sender = new Sender(req.body)    
 
