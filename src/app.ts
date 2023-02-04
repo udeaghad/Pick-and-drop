@@ -9,6 +9,8 @@ import officersRoutes from "./routes/officersRoutes";
 import sendersRoutes from "./routes/sendersRoutes";
 import receiversRoutes from "./routes/receiversRoutes";
 import ordersRoutes from "./routes/ordersRoutes";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs"
 
 dotenv.config();
 const app: Application = express();
@@ -40,6 +42,9 @@ app.use("/api/v1/senders", sendersRoutes );
 app.use("/api/v1/receivers", receiversRoutes);
 app.use("/api/v1/orders", ordersRoutes);
 
+/** API Documentation using swagger */
+const swaggerDocument = YAML.load('./swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 /**Error Handler */
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {

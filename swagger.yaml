@@ -12,3 +12,106 @@ info:
   contact:
     name: Dozie Udeagha
     email: dozie.udeagha@gmail.com
+
+schemes: [https, http]
+basePath: /api/v1
+paths:
+  /auths/register/company:
+    post:
+      Summary: Create a company
+      description: Create a logistic company to offer services
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: company
+          in: body
+          description: Company Object
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of company
+                required: true
+              email:
+                type: string
+                description: Email of the company or the promoter
+                required: true
+              phoneNumber:
+                type: string
+                description: Phone number of the company or the promoter
+                required: true
+              city: 
+                type: string
+                description: The city covered by the company or city located
+                required: true
+              state:
+                type: string
+                description: The state the company is located or covered
+                required: true
+              password:
+                type: string
+                description: The login password
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Company"
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+
+
+definitions:
+  Company:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the company
+      name:
+        type: string
+        description: Name of the company
+        required: true
+      email:
+        type: string
+        description: Name of the company
+        required: true
+      phoneNumber:
+        type: string
+        description: Phone number of the company or the promoter
+        required: true
+      city:
+        type: string
+        description: City of coverage or located
+        required: true
+      state:
+        type: string
+        description: State company is located
+        required: true
+      password:
+        type: string
+        description: Login password
+        required: true
+      offices:
+        type: array
+        desctription: Pickup officers and their locations
+        items:
+          $ref: "#/definitions/Officers"
+      logo:
+        type: string
+        description: The company logo
+      rating:
+        type: number
+        description: The company rating over 5
+      isAdmin: 
+        type: boolean
+        description: Admin user      
+
+  
