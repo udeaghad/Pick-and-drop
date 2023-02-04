@@ -1,0 +1,14 @@
+swagger: "2.0"
+info: 
+  title: Pick And Drop App
+  description: This API serves a local logistic companies to get orders and monitor the order status while serving their customers
+  version: 1.0.0
+  licence:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  servers:
+    - url: http://localhost:5000
+      description: Local Host Server
+  contact:
+    name: Dozie Udeagha
+    email: dozie.udeagha@gmail.com
