@@ -113,14 +113,16 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
         password: hash,
       })
       
-      const officerExist: RegisterOfficerType | null = await Officer.findOne({phoneNumber});
+      const officerExist: OfficerType | null = await Officer.findOne({phoneNumber});
       
       if(officerExist){
-        return res.status(200).send("Officer with the phone number already exist")
+        
+        return res.status(200).send("Officer with the phone already exist")
       } else {
         await newOfficer.save();
         
         await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
+        const { password, ...officerDetail } = newOfficer
         res.status(200).send("Officer created successfully");
       }
     } catch (err) {
@@ -130,27 +132,6 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
     res.status(401).send("You are not authorised to perform this action")
   }
 }
-
-// export const officerLogin = async(req: Request, res: Response, next: NextFunction) => {
-  //   try {
-    //     const officer: OfficerType | null = await Officer.findOne({email: req.body.phoneNumber});
-    //     if(!officer) return res.status(404).send("Account doesnot exist");
-    
-    //     const {_id, password, ...otherDetails} = officer._doc;
-    
-    //     const validPassword = await bcrypt.compare(req.body.password, password);
-    //     if(!validPassword) return res.status(404).send("Invalid password")
-    
-    //     const token = jwt.sign({id: _id}, secretKey)
-    
-    //     res
-    //     .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
-    //     .status(200).json({ _id, ...otherDetails });
-    
-    //   } catch (err) {
-      //     next(err)
-      //   }
-      // }
       
 export const updateOfficerPassword = async(req: Request, res: Response, next: NextFunction) => {
   

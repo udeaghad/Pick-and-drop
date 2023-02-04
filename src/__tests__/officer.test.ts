@@ -16,6 +16,16 @@ beforeEach(async () => {
 afterEach(async () => {
   await mongoose.connection.close();
 });
+
+const companyInput = {
+  name: "company2",
+  email:"company2@example.com",
+  phoneNumber: "2348080425123",
+  city: "Onitsha",
+  state: "Anambra",
+  password: "mypassword"
+}
+
 const companyLoginDetails = {
   email: "company2@example.com",
   password: "mypassword"
@@ -30,10 +40,24 @@ const OfficerAccountDetails = {
   phoneNumber: "080735483654"
 }
 
+const officerLoginDetails = {
+  phoneNumber:  "080735483654",
+  password: "mypassword",
+}
+
+
 describe("Officer", () => {
-  it("Should get all officers under a company", (done) => {
-    let companyId: string = '';
-    
+  let companyId: string 
+  let officerId: string 
+
+  it("Should get all officers under a company", (done) => { 
+    //create Company if it does not exist
+    agent
+     .post('/api/v1/auths/register/company')
+     .send(companyInput)
+     .expect(200)
+     .end(() => {
+
     //Login to the company
     agent
     .post("/api/v1/auths/login/company")
@@ -48,49 +72,47 @@ describe("Officer", () => {
       .send({...OfficerAccountDetails, companyId})
       .expect(200)
       .end((err, res) => {
-        //get all officers
+        //Login officer to get the Id
         agent
-        .get(`/api/v1/officers/companies/${companyId}`)
+        .post("/api/v1/auths/login/company")
+        .send(officerLoginDetails)
         .expect(200)
-        .end((err, res) => {
-          
-          expect(res.statusCode).toEqual(200)
-          expect(res.body.length).toBeGreaterThanOrEqual(0)
-          return done()
+        .end((err, res) => {          
+          officerId = res.body._id          
+          console.log("company", companyId)
+          console.log("officer", officerId)
+          //get all officers
+          agent
+          .get(`/api/v1/officers/companies/${companyId}`)
+          .expect(200)
+          .end((err, res) => {
+            
+            expect(res.statusCode).toEqual(200)
+            expect(res.body.length).toBeGreaterThanOrEqual(0)
+            return done()
+        })
+        
+        })
         })
       })      
     })
   })
   
   it("Should get an officer", (done) => {
-
-    let companyId: string = ""
-    //get all companies
+    // console.log("officer", officerId)
+    // console.log("company", companyId)
     agent
-    .get("/api/v1/companies")
+    .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
     .expect(200)
-    .end((err, res)  => {
-      
-      companyId = res.body[0]._id
-      //get all officers under this company
-      agent
-      .get(`/api/v1/officers/companies/${companyId}`)
-      .expect(200)
-      .end((err, res) => {
-        //get officer with the ID
-        const officerId = res.body[1]._id;
-        agent
-        .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-        .expect(200)
-        .end((err, res) => {
-          expect(res.statusCode).toEqual(200)
-          expect(res.body.name).toBe("malik")
-          return done()
-        })
-
-      })
+    .end((err, res) => {
+      expect(res.statusCode).toEqual(200)
+      expect(res.body.name).toBe("malik")
+      return done()
     })
+
   })
+    
+  
   
   it("Should update an officer's record", (done) => {
     
@@ -99,20 +121,13 @@ describe("Officer", () => {
     const updateDetail = {
       location: "Main mkt"
     }
-    //fetch company ID
-    let companyId: string = ""    
-    agent
-    .get("/api/v1/companies")
-    .expect(200)
-    .end((err, res)  => {      
-      companyId = res.body[0]._id
+    
       //Login Officer
       agent
       .post("/api/v1/auths/login/company")
       .send({phoneNumber, password})
       .expect(200)
       .end((err, res) => {
-        const officerId = res.body._id
         //update officer record
         agent
         .put(`/api/v1/officers/${officerId}/companies/${companyId}`)
@@ -126,21 +141,17 @@ describe("Officer", () => {
         })
       })
     })
-  })
+  
 
   it("Should delete officer by company admin", (done) => {
-    let officerId: string = ""
-    let companyId: string = ""
+    
     //Login company
     agent
     .post("/api/v1/auths/login/company")
     .send(companyLoginDetails)
     .expect(200)
     .end((err, res) => {
-      //delete officer
-      companyId = res.body._id;
-      officerId = res.body.offices[1]
-      
+      //delete officer      
       agent
       .delete(`/api/v1/officers/${officerId}/companies/${companyId}`)
       .set('Cookie', [res.header['set-cookie']])
