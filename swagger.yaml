@@ -18,7 +18,7 @@ basePath: /api/v1
 paths:
   /auths/register/company:
     post:
-      Summary: Create a company
+      summary: Create a company
       description: Create a logistic company to offer services
       produces:
         - application/json
@@ -59,14 +59,163 @@ paths:
       responses:
         200:
           description: Success
-          schema:
-            $ref: "#/definitions/Company"
         400:
           description: Bad Request
         500:
           description: Internal Server Error
+  
+  /auths/register/officer:
+    post:
+      summary: Register an Officer
+      description: Register an Officer by a Comapany Admin
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: officer
+          in: body
+          description: officer account creation details
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name of officer
+                required: true
+              address:
+                type: string
+                description: officer address of officer
+                required: true
+              location: 
+                type: string
+                description: office location
+                required: true
+              phoneNumber:
+                type: string
+                description: phone number of the officer
+                required: true
+              password:
+                type: string
+                description: password of the officer
+                required: true
+              companyId:
+                type: string
+                description: company ID of the company
+                required: true
+      
+      responses:
+        200:
+          description: Success
+        401:
+          description: You are not authorised to perform this action
+        500:
+          description: Internal Server Error
+
+  auths/login/company:
+    post:
+      summary: Account login
+      description: Allows the company admin or officer to login
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: login
+          in: body
+          description: email and password of company admin or phone number and pasword of officer
+          required: true
+          schema:
+            type: object
+            properties:
+              email: 
+                type: string
+                description: email admin or officer
+                required: true
+              phoneNumber:
+                type: string
+                description: phone number of admin or officer
+                required: true
+              password: 
+                type: string
+                description: password of the company admin or officer
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Company"
+        400:
+          description: Bad request
+        404:
+          description: Account does not exist
+        500:
+          description: Internal Server Error
+
+  /auths/password/company/{companyId}:
+    post:
+      summary: Update/change password for company
+      description: To change or update password for company admin
+      parameters:
+        - name: companyId
+          in: path
+          description: Unique ID of the company
+          required: true
+        - name: password
+          in: body
+          description: password object
+          required: true
+          schema:
+            type: object
+            properties:
+              password:
+                type: string
+                description: The new password
+                required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: You are not authorised to perform this action
+        500:
+         description: Internal Server Error
+
+  /auths/password/officer/{officerId}:
+    post:
+      summary: Update/change password for officer
+      description: To change or update password for officer
+      parameters:
+        - name: officerId
+          in: path
+          description: Unique ID of the officer
+          required: true
+        - name: password
+          in: body
+          description: password object
+          required: true
+          schema:
+            type: object
+            properties:
+              password:
+                type: string
+                description: The new password
+                required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: You are not authorised to perform this action
+        500:
+         description: Internal Server Error
 
 
+
+        
 
 definitions:
   Company:
@@ -112,6 +261,50 @@ definitions:
         description: The company rating over 5
       isAdmin: 
         type: boolean
-        description: Admin user      
+        description: Admin user 
+
+  Officers:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for officer
+      name:
+        type: string
+        description: Name of Officer
+        required: true
+      address:
+        type: string
+        description: Address of Officer
+        required: true
+      location:
+        type: string
+        description: office location of Officer
+        required: true
+      phoneNumber:
+        type: string
+        description: Phone number of Officer
+        required: true   
+      companyId:
+        type: string
+        description: Unique ID of the company
+        required: true
+      pending:
+        type: number
+        description: Number of pending order
+      viewed:
+        type: number
+        description: Number of viewed order
+      picked:
+        type: number
+        description: Number of order picked/recieved by the officer
+      transit:
+        type: number
+        description: Number of order on transit to park or home
+      isAdmin:
+        type: boolean
+        description: Admin access to Officer
+        default: false
+      
 
   
