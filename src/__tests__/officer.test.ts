@@ -78,9 +78,7 @@ describe("Officer", () => {
         .send(officerLoginDetails)
         .expect(200)
         .end((err, res) => {          
-          officerId = res.body._id          
-          console.log("company", companyId)
-          console.log("officer", officerId)
+          officerId = res.body._id
           //get all officers
           agent
           .get(`/api/v1/officers/companies/${companyId}`)
