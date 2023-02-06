@@ -13,7 +13,7 @@ info:
     name: Dozie Udeagha
     email: dozie.udeagha@gmail.com
 
-schemes: [https, http]
+schemes: [http]
 basePath: /api/v1
 paths:
   /auths/register/company:
@@ -113,7 +113,7 @@ paths:
         500:
           description: Internal Server Error
 
-  auths/login/company:
+  /auths/login/company:
     post:
       summary: Account login
       description: Allows the company admin or officer to login
@@ -212,6 +212,103 @@ paths:
           description: You are not authorised to perform this action
         500:
          description: Internal Server Error
+
+  /companies:
+    get:
+      summary: Get all companies
+      description: Retrieve records for all companies
+      responses:
+        200: 
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Company"
+        400: 
+          description: Bad request
+        500: 
+          description: Internal Server error
+
+  /companies/{companyId}:
+    get:
+      summary: Get a company
+      description: Retrieve records for a company
+      parameters:
+        - name: companyId
+          in: path
+          description: Unique Id of the company
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Company"
+        400:
+          description: Bad request
+        500: 
+          description: Internal Server Error
+    
+    put:
+      summary: Update Company
+      description: Update records of a company
+      parameters:
+        - name: companyId
+          in: path
+          description: The unique ID of the company
+          required: true
+        - name: company object
+          in: body
+          description: Company object to be updated
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of company
+                required: true
+              email:
+                type: string
+                description: Email of the company or the promoter
+                required: true
+              phoneNumber:
+                type: string
+                description: Phone number of the company or the promoter
+                required: true
+              city: 
+                type: string
+                description: The city covered by the company or city located
+                required: true
+              state:
+                type: string
+                description: The state the company is located or covered
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Company"
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+    
+    delete:
+      summary: delete a company
+      description: Delete company records
+      parameters:
+        - name: companyId
+          in: path
+          description: Unique ID of the company
+          required: true
+      responses:
+        200: 
+          description: Success
+        400: 
+          description: Bad request
+        500: 
+          description: Internal Server Error
+
 
 
 
