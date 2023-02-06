@@ -309,6 +309,121 @@ paths:
         500: 
           description: Internal Server Error
 
+  /officers/companies/{companyId}:
+    get:
+      summary: Get all company officers
+      description: Retrieves the record of all officers in a company
+      parameters:
+        - name: companyId
+          in: path
+          description: The unique ID of the company where the officers belongs
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Officer'
+        400:
+          description: Bad request
+        500:
+          description: Internal Server Error
+
+  /officers/{officerId}/companies/{companyId}:
+    get:
+      summary: Get records of an Officer
+      description: Retrieve the records of an officer
+      parameters:
+        - name: officerId
+          in: path
+          description: The unique ID of the officer
+          required: true
+        - name: companyId
+          in: path
+          description: The unique ID of the company where the officer belongs
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Officer'
+        400:
+          description: Bad Request
+        500: 
+          description: Internal Server Error
+
+    put:
+      summary: Update officer's records
+      description: Update officer's records by the officer or company Admin
+      parameters:
+        - name: officerId
+          in: path
+          description: The unique ID of the officer
+          required: true
+        - name: companyId
+          in: path
+          description: The unique ID of the company where the officer belongs
+          required: true
+        - name: update details
+          in: body
+          description: The Object details of officer to be updated
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name of officer
+              address:
+                type: string
+                description: officer address of officer
+              location: 
+                type: string
+                description: office location
+              phoneNumber:
+                type: string
+                description: phone number of the officer
+      responses:
+        200: 
+          description: Success
+          schema:
+            $ref: "#/definitions/Officer"
+        400:
+          description: Bad Request
+        401:
+          description: You are not authorised to perform this action
+        500: 
+          description: Internal Server Error
+
+    delete:
+      summary: Delete officer
+      desciption: Delete officer of a company
+      parameters:
+        - name: officerId
+          in: path
+          description: The unique ID of officer to be deleted
+          required: true
+        - name: companyId
+          in: path
+          description: the Unique ID of the company where the officer belongs
+          required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: You are not authorised to perform this action
+        500:
+          description: Internal Server Error
+
+
+         
+
+
+
+
 
 
 
@@ -360,7 +475,7 @@ definitions:
         type: boolean
         description: Admin user 
 
-  Officers:
+  Officer:
     type: object
     properties:
       _id:
