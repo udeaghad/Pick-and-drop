@@ -7,13 +7,15 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   servers:
+    - url: https://pick-and-drop.onrender.com
+      description: Production Host
     - url: http://localhost:5000
       description: Local Host Server
   contact:
     name: Dozie Udeagha
     email: dozie.udeagha@gmail.com
 
-schemes: [http]
+schemes: [https, http]
 basePath: /api/v1
 paths:
   /auths/register/company:
