@@ -771,6 +771,34 @@ paths:
           description: Bad Request
         500:
           description: Internal Server Error
+  
+  /orders/companies/{companyId}:
+    get:
+      summary: Get orders with dates
+      descriptions: Retrieve orders using start date and end date
+      parameters:
+        - name: companyId
+          in: path
+          description: The Unique ID of the company
+          required: true
+        - name: startDate
+          in: query
+          description: Retrieve the start date to orders query
+          required: true
+        - name: endDate
+          in: query
+          description: (Optional) Retrieve the end date for order query
+      responses:
+        200: 
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Order"
+        400:
+          descriptions: Bad Request
+        500:
+          descriptions: Internal Server Error
         
               
 
