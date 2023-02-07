@@ -564,6 +564,218 @@ paths:
         500:
           description: Internal Server Error
 
+  /receivers/{receiverId}:
+    put:
+      summary: Update Receiver records
+      description: Update the record details of a receiver using the receiver unique ID
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: receiverId
+          in: path
+          description: The unique ID of the receiver
+          required: true
+        - name: update details
+          in: body
+          description: The details of the receiver to be updated
+          schema:
+            type: object
+            properties:
+              name: 
+                type: string
+                description: The name of the receiver
+                required: true
+              phoneNumber: 
+                type: string
+                description: The phone number of the receiver
+                required: true
+              city: 
+                type: string
+                description: the city where the receiver islocated
+                required: true
+      responses:
+        200: 
+          description: Success
+          schema:
+            $ref: '#/definitions/Receiver'
+        400: 
+          description: Bad Request
+        500:
+          description: Internal Server Error
+    
+    get:
+      summary: Get Receiver Records
+      description: Retrieve the records of Receiver
+      parameters:
+        - name: receiverId
+          in: path
+          description: The unique ID of the receiver
+          required: true
+      responses:
+        200: 
+          description: Success
+          schema:
+           $ref: "#/definitions/Receiver"
+        400: 
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+  /orders:
+    post:
+      summary: Create a new order
+      description: Create a new order by the sender
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: Order details
+          in: body
+          description: The details of the new order to be created
+          required: true
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: The item to be sent/delivered
+                required: true
+              companyId:
+                type: string
+                description: The unique ID of the delivery company
+                required: true
+              receiverId:
+                type: string
+                description: The unique ID of the receiver
+                required: true
+              senderId:
+                type: string
+                description: The unique ID of the sender
+                required: true
+              officerId:
+                type: string
+                description: The unique ID of the receiver
+                required: true
+              deliveryPoint:
+                type: string
+                enum:
+                  - Park
+                  - Home
+                description: Specify whether order will be home delivery or park.
+                required: true
+              deliveryAddress:
+                type: string
+                description: Delivery address if home delivery or Park/transport company Name and location
+                required: true
+              serviceFee: 
+                type: number
+                description: Service fee collected by company for delivery
+                required: true
+              RegisteredWaybill:
+                type: boolean
+                description: The sender state if the order would need to be registered offically with transport company
+                required: true
+                default: false
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: Bad Request
+        500: 
+          description: Internal Server Error
+    
+  /orders/{orderId}: 
+    put:
+      summary: Update Order records
+      description: To update order records including status
+      parameters:
+        - name: orderId
+          in: path
+          description: The unique ID of the order
+          required: true
+        - name: update details
+          in: body
+          description: The details to be updated such as status
+          required: true
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: The item to be sent/delivered
+                required: true
+              companyId:
+                type: string
+                description: The unique ID of the delivery company
+                required: true
+              receiverId:
+                type: string
+                description: The unique ID of the receiver
+                required: true
+              senderId:
+                type: string
+                description: The unique ID of the sender
+                required: true
+              officerId:
+                type: string
+                description: The unique ID of the receiver
+                required: true
+              deliveryPoint:
+                type: string
+                enum:
+                  - Park
+                  - Home
+                description: Specify whether order will be home delivery or park.
+                required: true
+              deliveryAddress:
+                type: string
+                description: Delivery address if home delivery or Park/transport company Name and location
+                required: true
+              serviceFee: 
+                type: number
+                description: Service fee collected by company for delivery
+                required: true
+              RegisteredWaybill:
+                type: boolean
+                description: The sender state if the order would need to be registered offically with transport company
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+    get:
+      summary: Get details of an Order
+      description: Retrieve details of an order using the order ID
+      parameters:
+        - name: orderId
+          in: path
+          description: The unique ID of the order
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Order"
+        400: 
+          description: Bad Request
+        500:
+          description: Internal Server Error
+        
+              
+
+              
+
 
 
         
