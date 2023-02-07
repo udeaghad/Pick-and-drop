@@ -20,7 +20,7 @@ const CompanySchema = new Schema({
         lowercase: true,
     },
     phoneNumber: {
-        type: Number,
+        type: String,
         required: true,
         unique: true,
     },
@@ -36,6 +36,9 @@ const CompanySchema = new Schema({
         type: String,
         required: true,
     },
+    offices: {
+        type: [{ type: Schema.Types.ObjectId, ref: "Officers", required: true }]
+    },
     logo: {
         type: String,
     },
@@ -44,6 +47,10 @@ const CompanySchema = new Schema({
         min: 0,
         max: 5,
         default: 0,
+    },
+    isAdmin: {
+        type: Boolean,
+        default: true
     }
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Company", CompanySchema);

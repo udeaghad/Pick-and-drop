@@ -28,7 +28,9 @@ To get a local copy up and running follow these simple steps.
 - Make your way to the correct directory by running this command:
 - `$ cd Pick-and-drop `
 - Run `npm install`
-- Run `npm run dev`
+- Run `npm run build`
+- Run `npm run start`
+
 
 
 # Authors

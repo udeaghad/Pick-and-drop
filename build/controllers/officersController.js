@@ -23,15 +23,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCompany = exports.updateCompany = exports.getCompany = exports.getAllCompanies = void 0;
+exports.deleteOfficer = exports.updateOfficer = exports.getOfficer = exports.getAllOfficers = void 0;
 const CompanyModel_1 = __importDefault(require("../models/CompanyModel"));
 const OfficerModel_1 = __importDefault(require("../models/OfficerModel"));
-;
-const getAllCompanies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllOfficers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const allCompanies = yield CompanyModel_1.default.find();
-        const result = allCompanies.map(company => {
-            const _a = company._doc, { password } = _a, otherDetails = __rest(_a, ["password"]);
+        const allOfficers = yield OfficerModel_1.default.find({ companyId: req.params.companyId });
+        const result = allOfficers.map(officer => {
+            const _a = officer._doc, { password } = _a, otherDetails = __rest(_a, ["password"]);
             return otherDetails;
         });
         res.status(200).json(result);
@@ -40,28 +39,28 @@ const getAllCompanies = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         next(err);
     }
 });
-exports.getAllCompanies = getAllCompanies;
-const getCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getAllOfficers = getAllOfficers;
+const getOfficer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const company = yield CompanyModel_1.default.findById(req.params.companyId);
-        if (!company)
+        const officer = yield OfficerModel_1.default.findOne({ companyId: req.params.companyId, _id: req.params.officerId });
+        if (!officer)
             return res.status(404).send("Record not found");
-        const _a = company._doc, { password } = _a, otherDetails = __rest(_a, ["password"]);
+        const _a = officer._doc, { password } = _a, otherDetails = __rest(_a, ["password"]);
         res.status(200).json(otherDetails);
     }
     catch (err) {
         next(err);
     }
 });
-exports.getCompany = getCompany;
-const updateCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.cookies.cookies.id === req.params.companyId && req.cookies.cookies.isAdmin) {
+exports.getOfficer = getOfficer;
+const updateOfficer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.cookies.cookies.id === req.params.officerId || (req.cookies.cookies.id === req.params.companyId && req.cookies.cookies.isAdmin)) {
         try {
             const _b = req.body, { password } = _b, bodyDetails = __rest(_b, ["password"]);
-            const company = yield CompanyModel_1.default.findByIdAndUpdate(req.params.companyId, { $set: bodyDetails }, { new: true });
-            if (!company)
+            const officer = yield OfficerModel_1.default.findByIdAndUpdate(req.params.officerId, { $set: bodyDetails }, { new: true });
+            if (!officer)
                 return res.status(400).send("Record does not exist");
-            const _c = company._doc, { password: companyPassword } = _c, otherDetails = __rest(_c, ["password"]);
+            const _c = officer._doc, { password: officerPassword } = _c, otherDetails = __rest(_c, ["password"]);
             res.status(200).json(otherDetails);
         }
         catch (err) {
@@ -72,14 +71,14 @@ const updateCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(401).send("You are not authorised to make changes");
     }
 });
-exports.updateCompany = updateCompany;
-const deleteCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.updateOfficer = updateOfficer;
+const deleteOfficer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.cookies.cookies.id === req.params.companyId && req.cookies.cookies.isAdmin) {
         try {
-            yield CompanyModel_1.default.findByIdAndDelete(req.params.companyId);
-            const offices = yield OfficerModel_1.default.find({ companyId: req.params.companyId });
-            offices.forEach(item => item.deleteOne());
-            res.status(200).send("Company deleted successfully");
+            const officer = yield OfficerModel_1.default.findById(req.params.officerId);
+            yield CompanyModel_1.default.findByIdAndUpdate(officer === null || officer === void 0 ? void 0 : officer.companyId, { $pull: { offices: req.params.officerId } });
+            yield (officer === null || officer === void 0 ? void 0 : officer.deleteOne());
+            res.status(200).send("Officer deleted successfully");
         }
         catch (err) {
             next(err);
@@ -89,4 +88,4 @@ const deleteCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(401).send("You are not authorised to perform this action");
     }
 });
-exports.deleteCompany = deleteCompany;
+exports.deleteOfficer = deleteOfficer;
