@@ -4,7 +4,7 @@ info:
   description: This application serves individuals and companies who are into logistic businesses, 
     that is, the business of picking up an item and dropping it at a transport company Park for waybill 
     or the Home of the receiver if within the locality. The application allows companies/individuals to 
-    create accounts and pick up officers/offices. To create an order( request for pickup services), 
+    create accounts and pick-up officers/offices. To create an order( request for pickup services), 
     the sender will fill out their details, the receiver's details, and the order details. 
     As the Order moves from one point to another, its status is updated.
   version: 1.0.0
@@ -275,23 +275,18 @@ paths:
               name:
                 type: string
                 description: Name of company
-                required: true
               email:
                 type: string
                 description: Email of the company or the promoter
-                required: true
               phoneNumber:
                 type: string
                 description: Phone number of the company or the promoter
-                required: true
               city: 
                 type: string
                 description: The city covered by the company or city located
-                required: true
               state:
                 type: string
                 description: The state the company is located or covered
-                required: true
       responses:
         200:
           description: Success
@@ -488,19 +483,15 @@ paths:
               name:
                 type: string
                 description: Name of the Sender
-                required: true
               phoneNumber:
                 type: string
                 description: The phone number of the sender
-                required: true
               address:
                 type: string
                 description: The address of the sender
-                required: true
               location:
                 type: string
                 description: The location of the address of the sender
-                required: true
       responses:
         200:
           description: Success
@@ -593,15 +584,12 @@ paths:
               name: 
                 type: string
                 description: The name of the receiver
-                required: true
               phoneNumber: 
                 type: string
                 description: The phone number of the receiver
-                required: true
               city: 
                 type: string
-                description: the city where the receiver islocated
-                required: true
+                description: the city where the receiver is located
       responses:
         200: 
           description: Success
@@ -715,42 +703,33 @@ paths:
               content:
                 type: string
                 description: The item to be sent/delivered
-                required: true
               companyId:
                 type: string
                 description: The unique ID of the delivery company
-                required: true
               receiverId:
                 type: string
                 description: The unique ID of the receiver
-                required: true
               senderId:
                 type: string
                 description: The unique ID of the sender
-                required: true
               officerId:
                 type: string
                 description: The unique ID of the receiver
-                required: true
               deliveryPoint:
                 type: string
                 enum:
                   - Park
                   - Home
                 description: Specify whether order will be home delivery or park.
-                required: true
               deliveryAddress:
                 type: string
                 description: Delivery address if home delivery or Park/transport company Name and location
-                required: true
               serviceFee: 
                 type: number
                 description: Service fee collected by company for delivery
-                required: true
               RegisteredWaybill:
                 type: boolean
                 description: The sender state if the order would need to be registered offically with transport company
-                required: true
       responses:
         200:
           description: Success
