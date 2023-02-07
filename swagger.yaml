@@ -799,15 +799,7 @@ paths:
           descriptions: Bad Request
         500:
           descriptions: Internal Server Error
-        
-              
-
-              
-
-
-
-        
-        
+                
 
 definitions:
   Company:
