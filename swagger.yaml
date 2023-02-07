@@ -462,6 +462,109 @@ paths:
         500:
           description: Internal Server Error
 
+  /senders/{senderId}:
+    put:
+      summary: Update Sender Records
+      description: To update record of a sender
+      parameters:
+        - name: senderId
+          in: path
+          description: The unique ID of the sender
+          required: true
+        - name: update details
+          in: body
+          description: The details to be updated
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the Sender
+                required: true
+              phoneNumber:
+                type: string
+                description: The phone number of the sender
+                required: true
+              address:
+                type: string
+                description: The address of the sender
+                required: true
+              location:
+                type: string
+                description: The location of the address of the sender
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Sender'
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+    get:
+      summary: Get sender details
+      description: To Retrieve the records of a sender with a sender ID
+      parameters:
+        - name: senderId
+          in: path
+          description: The unique ID of the sender
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Sender"
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+  /receivers/senders/{senderId}:
+    post:
+      summary: Create Reciever records
+      description: To create receiver of an order by sender
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: senderId
+          in: path
+          description: The unique ID of the sender
+          required: true
+        - name: receiver details
+          in: body
+          description: The details of the receiver
+          required: true
+          schema:
+            type: object
+            properties:
+              name: 
+                type: string
+                description: The name of the receiver
+                required: true
+              phoneNumber: 
+                type: string
+                description: The phone number of the receiver
+                required: true
+              city: 
+                type: string
+                description: the city where the receiver islocated
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Receiver"
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+
+
 
         
         
