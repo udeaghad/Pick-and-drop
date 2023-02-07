@@ -130,6 +130,7 @@ describe("Order", () => {
       senderId,
       officerId,
       deliveryPoint: "Park",
+      deliveryAddress: "Peace Park Upper iweka",
       serviceFee: "500",
       RegisteredWaybill: "false"
     } 

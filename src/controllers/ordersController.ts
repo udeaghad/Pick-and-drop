@@ -14,6 +14,7 @@ interface OrderInterface {
   senderId: Types.ObjectId;
   officerId: Types.ObjectId;
   deliveryPoint: DeliverPoint;
+  deliveryAddress: string;
   serviceFee: number;
   RegisteredWaybill: boolean;
   status: DeliveryStatus;

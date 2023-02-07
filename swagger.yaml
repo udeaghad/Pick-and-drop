@@ -145,7 +145,9 @@ paths:
         200:
           description: Success
           schema:
-            $ref: "#/definitions/Company"
+            oneOf:
+              - $ref: "#/definitions/Company"
+              - $ref: '#/definitions/Officer'
         400:
           description: Bad request
         404:
@@ -417,16 +419,51 @@ paths:
           description: You are not authorised to perform this action
         500:
           description: Internal Server Error
+  
+  /senders:
+    post:
+      summary: Create a sender record
+      description: To create a record for a sender who books the order
+      produces:
+        - application/json
+      consumes:
+        -  application/json
+      parameters:
+        - name: sender
+          in: body
+          description: sender details
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the Sender
+                required: true
+              phoneNumber:
+                type: string
+                description: The phone number of the sender
+                required: true
+              address:
+                type: string
+                description: The address of the sender
+                required: true
+              location:
+                type: string
+                description: The location of the address of the sender
+                required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Sender'
+        400: 
+          description: Bad Request
+        500:
+          description: Internal Server Error
 
 
-         
-
-
-
-
-
-
-
+        
         
 
 definitions:
@@ -464,7 +501,7 @@ definitions:
         type: array
         desctription: Pickup officers and their locations
         items:
-          $ref: "#/definitions/Officers"
+          $ref: "#/definitions/Officer"
       logo:
         type: string
         description: The company logo
@@ -518,5 +555,124 @@ definitions:
         description: Admin access to Officer
         default: false
       
+  Sender:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique ID of the Sender
+      name:
+        type: string
+        description: The name of the sender
+        required: true
+      pnoneNumber:
+        type: string
+        description: The phone number of the sender
+        required: true
+      address:
+        type: string
+        description: The address ofthe sender
+        required: true
+      location:
+        type: string
+        description: The location of the address of the sender
+        required: true
+      customers:
+        type: array
+        items:
+          $ref: "#/definitions/Receiver"
+        description: All receivers the senders have created
+  
+  Receiver:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique ID of the Receiver
+      name:
+        type: string
+        description: The name of the receiver
+        required: true
+      phoneNumber:
+        type: string
+        description: phone number of the order receipient
+        required: true
+      city:
+        type: string
+        description: The city of the receiver/recipient
+        required: true
 
+  Order:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: The unique ID for any order booked
+      content:
+        type: string
+        description: The item to be sent/delivered
+        required: true
+      companyId:
+        $ref: '#/definitions/Company'
+      receiverId:
+        $ref: '#/definitions/Receiver'
+      senderId:
+        $ref: '#/definitions/Sender'
+      officerId:
+        $ref: '#/definitions/Officer'
+      deliveryPoint:
+        type: string
+        enum:
+          - Park
+          - Home
+        description: Specify whether order will be home delivery or park.
+        required: true
+      deliveryAddress:
+        type: string
+        description: Delivery address if home delivery or Park/transport company Name and location
+        required: true
+      serviceFee: 
+        type: number
+        description: Service fee collected by company for delivery
+        required: true
+      RegisteredWaybill:
+        type: boolean
+        description: The sender state if the order would need to be registered offically with transport company
+        required: true
+        default: false
+      status:
+        type: string
+        enum:
+          - Pending
+          - Viewed
+          - Received
+          - On Transit
+          - Delivered
+        default: "Pending"
+        description: Describe at what stage is the order for tracking purpose
+        required: true
+      deliveryAgent:
+        type: string
+        description: The name of the company rider or delivery officer
+      viewedBy:
+        type: string
+        description: The name of the officer that viewed the order
+      pickedBy:
+        type: string
+        description: The name of the officer that picked up the order from the sender
+      driverNumber:
+        type: string
+        description: The phone number of transport company driver/tracking number if regustered waybill
+      orderDate:
+        type: string
+        format: date
+        description: The date the order was booked 
+        
+
+
+        
+         
+      
+
+       
   

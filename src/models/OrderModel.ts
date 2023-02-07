@@ -11,6 +11,7 @@ interface OrderInterface {
   senderId: Types.ObjectId;
   officerId: Types.ObjectId;
   deliveryPoint: DeliverPoint;
+  deliveryAddress: string;
   serviceFee: number;
   RegisteredWaybill: boolean;
   status: DeliveryStatus;
@@ -55,6 +56,11 @@ const OrderSchema = new Schema<OrderInterface>({
     type: String,
     enum: ["Park", "Home"],
     required: true,
+  },
+
+  deliveryAddress: {
+    type: String,
+    required: true
   },
 
   serviceFee: {
