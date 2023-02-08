@@ -1,9 +1,8 @@
-[![](https://img.shields.io/badge/Microverse-Dozie%20Udeagha-blueviolet)](https://github.com/udeaghad)
 ## Pick-and-drop (Back End Application) 🏩
 This application serves individuals and companies who are into logistic businesses, that is, the business of picking up an item and dropping it at a transport company Park for waybill or the Home of the receiver if within the locality. The application allows companies/individuals to create accounts and pick-up officers/offices. To create an order( request for pickup services), the sender will fill out their details, the receiver's details, and the order details. As the Order moves from one point to another, its status is updated.
 
 ## Project Documentation 📄
- - [ Live Demo](https://pick-and-drop.onrender.com/api/v1)
+
  - [API Documentation](https://pick-and-drop.onrender.com/api-docs)
 
 #Built With 🛠️
