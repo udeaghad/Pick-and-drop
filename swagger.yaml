@@ -120,7 +120,7 @@ paths:
         500:
           description: Internal Server Error
 
-  /auths/login/company:
+  /auths/login:
     post:
       summary: Account login
       description: Allows the company admin or officer to login

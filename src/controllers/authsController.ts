@@ -1,9 +1,10 @@
 import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
-import bcrypt from "bcryptjs";
 import jwt, {Secret} from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import {Request, Response, NextFunction} from "express";
 import { Types } from "mongoose";
+import hashPassword from "../utils/hashPassword";
 import { ICompany } from "../models/CompanyModel";
 import { IOfficer } from "../models/OfficerModel";
 
@@ -49,8 +50,6 @@ const secretKey: Secret = String(process.env.JWT);
 export const registerCompany = async(req:Request, res:Response, next:NextFunction) => {
   const {name, email, phoneNumber, city, state, password, logo}: RegisterCompanyType = req.body;
   try {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt)
 
     const newCompany = new Company<RegisterCompanyType>({
       name,
@@ -58,18 +57,17 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
       phoneNumber,
       city,
       state,
-      password: hash,
+      password: hashPassword(password),
     })
 
     const companyExist: RegisterCompanyType | null = await Company.findOne({name});
 
-    if(companyExist){
-      return res.status(200).send("Company already exist");
-    } else { 
+    if(companyExist) return res.status(200).send("Company already exist");
+   
 
-      await newCompany.save();
-      res.status(200).send("Company created successfully")
-    }
+    await newCompany.save();
+    res.status(200).send("Company created successfully")
+    
 
   } catch (err) {
     next(err);
@@ -79,21 +77,20 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 
 export const updateCompanyPassword = async(req: Request, res: Response, next: NextFunction) => {
   
-  if(req.cookies.cookies.id === req.params.companyId){
+  if(req.cookies.cookies.id !== req.params.companyId){
 
+    return res.status(401).send("You are not authorised to perform this action");
+
+  } else {
     try {
-      const salt = bcrypt.genSaltSync(10);
-      const hash = bcrypt.hashSync(req.body.password, salt);
-  
+
       await Company.findByIdAndUpdate(
-        req.params.companyId, {$set: {password: hash}}, {new: true} 
+        req.params.companyId, {$set: {password: hashPassword(req.body.password)}}, {new: true} 
       )
       res.status(200).send("Password updated successfully");
     } catch (err) {
       next(err)
     }
-  }else {
-    res.status(401).send("You are not authorised to perform this action")
   }
 }
 
@@ -103,8 +100,6 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
   if(req.cookies.cookies.id === companyId && req.cookies.cookies.isAdmin){
 
     try {
-      const salt = bcrypt.genSaltSync(10);
-      const hash = bcrypt.hashSync(password, salt);
       
       const newOfficer = new Officer<RegisterOfficerType>({
         name,
@@ -112,19 +107,19 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
         companyId,
         location,
         phoneNumber,
-        password: hash,
+        password: hashPassword(password),
       })
       
       const officerExist: OfficerType | null = await Officer.findOne({phoneNumber});
       
       if(officerExist){
         
-        return res.status(200).send("Officer with the phone already exist")
+        return res.status(302).send("Officer with the phone already exist")
       } else {
         await newOfficer.save();
         
         await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
-        const { password, ...officerDetail } = newOfficer
+        
         res.status(200).send("Officer created successfully");
       }
     } catch (err) {
@@ -140,11 +135,9 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
   if(req.cookies.cookies.id === req.params.officerId){
 
     try {
-      const salt = bcrypt.genSaltSync(10);
-      const hash = bcrypt.hashSync(req.body.password, salt);
   
        await Officer.findByIdAndUpdate(
-         req.params.officerId, {$set: {password: hash}}, {new: true} 
+         req.params.officerId, {$set: {password: hashPassword(req.body.password)}}, {new: true} 
          )
       res.status(200).send("Password updated successfully");
     } catch (err) {
@@ -155,11 +148,11 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
   }
 }
   
-export const companyLogin = async(req: Request, res: Response, next: NextFunction) => {  
+export const Login = async(req: Request, res: Response, next: NextFunction) => {  
     
   const company: CompanyType | null = await Company.findOne({email: req.body.email});
   const officer: OfficerType | null = await Officer.findOne({phoneNumber: req.body.phoneNumber});
-  // if(!company) return res.status(404).json({status: 404, message: "Company not found"}) 
+ 
   
   if(company){
     try {
@@ -178,9 +171,6 @@ export const companyLogin = async(req: Request, res: Response, next: NextFunctio
       }
   }else if(officer) {
     try {
-          // const officer: OfficerType | null = await Officer.findOne({email: req.body.phoneNumber});
-          if(!officer) return res.status(404).send("Account doesnot exist");
-      
           const {_id, password, ...otherDetails} = officer._doc;
       
           const validPassword = await bcrypt.compare(req.body.password, password);

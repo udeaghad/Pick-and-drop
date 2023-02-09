@@ -1,12 +1,12 @@
 import express from "express";
-import { registerCompany, companyLogin, updateCompanyPassword } from "../controllers/authsController";
+import { registerCompany, Login, updateCompanyPassword } from "../controllers/authsController";
 import { registerOfficer, updateOfficerPassword} from "../controllers/authsController";
 import { verifyToken } from "../utils/verifyToken";
 
 const router = express.Router();
 
 router.post("/register/company", registerCompany);
-router.post("/login/company", companyLogin);
+router.post("/login", Login);
 router.post("/password/company/:companyId", verifyToken, updateCompanyPassword);
 
 router.post("/register/officer", verifyToken, registerOfficer);
