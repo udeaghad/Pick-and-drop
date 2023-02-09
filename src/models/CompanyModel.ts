@@ -68,7 +68,7 @@ const CompanySchema = new Schema<ICompany>({
   
   isAdmin: {
     type: Boolean,
-    default: true
+    default: false
   }
 },
 {timestamps: true});
