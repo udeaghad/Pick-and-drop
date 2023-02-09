@@ -1,7 +1,6 @@
 import express, { Request, Response, ErrorRequestHandler, Application} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-// import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import authsRoutes from "./routes/authsRoutes";
 import companyRoutes from "./routes/companyRoutes";
@@ -32,8 +31,8 @@ app.use(express.json());
 /**cookie parser */
 app.use(cookieParser());
 
-app.get('/api/v1/', (req: Request, res: Response) => {
-  res.send("Hello World")
+app.get('*', (req: Request, res: Response) => {
+  res.send(`Error! Visit the https://pick-and-drop.onrender.com/api-docs for more information`)
 });
 app.use("/api/v1/auths", authsRoutes);
 app.use("/api/v1/companies", companyRoutes);
