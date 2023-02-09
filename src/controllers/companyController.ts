@@ -1,31 +1,14 @@
 import {Request, Response, NextFunction} from "express"
-import { Types } from "mongoose";
 import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
-
-interface AllCompanyType {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  state: string;
-  password?: string;
-  logo?: string;
-  rating?:number;
-  isAdmin?: boolean;
-};
-
-interface CompanyType {
-  _doc: AllCompanyType;
-}
+import { ICompany } from "../models/CompanyModel";
 
 export const getAllCompanies = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const allCompanies: CompanyType[] = await Company.find();
+    const allCompanies: ICompany[] = await Company.find().lean();
 
-    const result: AllCompanyType[] = allCompanies.map(company => {     
-    const {password, ...otherDetails } = company._doc;
+    const result = allCompanies.map(company => {     
+    const {password, ...otherDetails } = company;
       return otherDetails;
     })
     res.status(200).json(result)
@@ -36,9 +19,9 @@ export const getAllCompanies = async(req: Request, res: Response, next: NextFunc
 
 export const getCompany = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const company: CompanyType | null = await Company.findById(req.params.companyId);
+    const company: ICompany | null = await Company.findById(req.params.companyId).lean();
     if(!company) return res.status(404).send("Record not found")
-    const { password, ...otherDetails } = company._doc;
+    const { password, ...otherDetails } = company;
     res.status(200).json(otherDetails)
   } catch (err) {
     next(err)
@@ -52,11 +35,11 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
     try {
       const {password, ...bodyDetails } = req.body;
   
-      const company: CompanyType | null= await Company.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true})
+      const company: ICompany | null= await Company.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true}).lean();
       
       if(!company) return res.status(400).send("Record does not exist")
       
-      const { password: companyPassword, ...otherDetails } = company._doc;
+      const { password: companyPassword, ...otherDetails } = company;
       
       res.status(200).json(otherDetails);
     } catch (err) {
