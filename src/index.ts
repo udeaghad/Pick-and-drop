@@ -4,7 +4,6 @@ import app from "./app";
 const port: number = Number(process.env.PORT) || 5001;
 
 /**connect to database */
-mongoose.set('strictQuery', true);
 const databaseURL: string = String(process.env.MONGO);
 
 const connect = () => {

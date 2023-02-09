@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import jwt, {Secret} from "jsonwebtoken";
 import {Request, Response, NextFunction} from "express";
 import { Types } from "mongoose";
+import { ICompany } from "../models/CompanyModel";
+import { IOfficer } from "../models/OfficerModel";
 
 interface RegisterCompanyType {
   _id?: Types.ObjectId;

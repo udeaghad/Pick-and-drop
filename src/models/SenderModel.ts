@@ -2,7 +2,7 @@ import mongoose, { Model, Types } from "mongoose";
 
 const {Schema} = mongoose;
 
-interface SenderType {
+export interface ISender {
   name: string;
   phoneNumber: string;
   address: string;
@@ -11,7 +11,7 @@ interface SenderType {
   customers: Types.ObjectId[];
 }
 
-const SenderSchema = new Schema<SenderType>({
+const SenderSchema = new Schema<ISender>({
   name: {
     type: String,
     required: true,

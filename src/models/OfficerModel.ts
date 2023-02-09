@@ -2,7 +2,7 @@ import mongoose, { Types, Model  } from "mongoose";
 
 const { Schema } = mongoose;
 
-interface IOfficer {
+export interface IOfficer {
   name: string;
   password: string;
   address: string;

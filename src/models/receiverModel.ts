@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-interface ReceiverInterface {
+export interface IReceiver {
   name: string;
   phoneNumber: string;
   city: String;
 }
 
-const ReceiverModel = new Schema<ReceiverInterface>({
+const ReceiverModel = new Schema<IReceiver>({
   name: {
     type: String,
     required: true
