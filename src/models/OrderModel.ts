@@ -2,9 +2,13 @@ import mongoose, { Types } from "mongoose";
 
 const { Schema } = mongoose;
 
-type DeliverPoint = "Park" | "Home";
-type DeliveryStatus = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
-interface OrderInterface {
+const status = ["Pending", "Viewed", "Received", "On Transit", "Delivered"] as const;
+
+type Status = typeof status[number];
+
+export type DeliverPoint = "Park" | "Home";
+
+export interface IOrder {
   content: string;
   companyId: Types.ObjectId;
   receiverId: Types.ObjectId;
@@ -14,7 +18,7 @@ interface OrderInterface {
   deliveryAddress: string;
   serviceFee: number;
   RegisteredWaybill: boolean;
-  status: DeliveryStatus;
+  status: Status;
   deliveryAgent: string;
   viewedBy: string;
   pickedBy: string;
@@ -23,7 +27,7 @@ interface OrderInterface {
 }
 
 
-const OrderSchema = new Schema<OrderInterface>({
+const OrderSchema = new Schema<IOrder>({
   content: {
     type: String,
     required: true
@@ -75,7 +79,7 @@ const OrderSchema = new Schema<OrderInterface>({
 
   status: {
     type: String,
-    enum: [ "Pending","Viewed", "Received", "On Transit", "Delivered" ],
+    enum: status,
     default: "Pending",
     required: true,
   },
