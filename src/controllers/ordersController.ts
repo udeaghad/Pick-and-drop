@@ -78,7 +78,8 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
  
     try {
       const {startDate, endDate} = req.query;
-
+      const OneDayValue: number = 83000000;
+      
       if(!startDate) return res.status(404).send("You need to enter the startDate and endDate in the query")
       
       if(startDate && !endDate){
@@ -94,7 +95,7 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
         const orderByDateRange = await Order.find({
           orderDate: {
             $gte: Date.parse(startDate.toString()),
-            $lt: Date.parse(endDate.toString()) + 83000000,
+            $lt: Date.parse(endDate.toString()) + OneDayValue,
           },
           companyId: req.params.companyId,
         }).sort({orderDate: 'desc'})
