@@ -10,10 +10,10 @@ export type DeliverPoint = "Park" | "Home";
 
 export interface IOrder {
   content: string;
-  companyId: Types.ObjectId;
-  receiverId: Types.ObjectId;
-  senderId: Types.ObjectId;
-  officerId: Types.ObjectId;
+  company: Types.ObjectId;
+  receiver: Types.ObjectId;
+  sender: Types.ObjectId;
+  officer: Types.ObjectId;
   deliveryPoint: DeliverPoint;
   deliveryAddress: string;
   serviceFee: number;
@@ -32,25 +32,25 @@ const OrderSchema = new Schema<IOrder>({
     type: String,
     required: true
   },
-  companyId: {
+  company: {
     type: Schema.Types.ObjectId,
     ref: "Company",
     required: true
   },
 
-  receiverId: {
+  receiver: {
     type: Schema.Types.ObjectId,
     ref: "Receiver",
     required: true
   },
 
-  senderId: {
+  sender: {
     type: Schema.Types.ObjectId,
     ref: "Sender",
     required: true,
   },
 
-  officerId: {
+  officer: {
     type: Schema.Types.ObjectId,
     ref: "Officer",
     required: true,

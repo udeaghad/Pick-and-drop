@@ -10,9 +10,9 @@ interface Officer extends IOfficer {
 
 export const getAllOfficers = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const allOfficers: Officer[] = await Officer.find({companyId: req.params.companyId})
+    const allOfficers: Officer[] = await Officer.find({company: req.params.companyId})
                                                 .lean()
-                                                .populate("companyId", "name");
+                                                .populate("company", "name");
 
     const result = allOfficers.map(officer => {     
     const {password, ...otherDetails } = officer;
@@ -26,9 +26,9 @@ export const getAllOfficers = async(req: Request, res: Response, next: NextFunct
 
 export const getOfficer = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const officer: Officer | null = await Officer.findOne({companyId: req.params.companyId, _id: req.params.officerId})
+    const officer: Officer | null = await Officer.findOne({company: req.params.companyId, _id: req.params.officerId})
                                                  .lean()
-                                                 .populate("companyId", "name");
+                                                 .populate("company", "name");
     if(!officer) return res.status(400).send("Record not found")
     const { password, ...otherDetails } = officer;
     res.status(200).json(otherDetails)
@@ -46,7 +46,7 @@ export const updateOfficer = async(req: Request, res: Response, next: NextFuncti
   
       const officer: Officer | null= await Officer.findByIdAndUpdate(req.params.officerId, {$set: bodyDetails}, {new: true})
                                                   .lean()
-                                                  .populate("companyId", "name");
+                                                  .populate("company", "name");
       
       if(!officer) return res.status(400).send("Record does not exist")
       
@@ -67,7 +67,7 @@ export const deleteOfficer = async(req: Request, res: Response, next: NextFuncti
     try {
       
       const officer = await Officer.findById(req.params.officerId);
-      await Company.findByIdAndUpdate(officer?.companyId, { $pull: {offices: req.params.officerId}})
+      await Company.findByIdAndUpdate(officer?.company, { $pull: {offices: req.params.officerId}})
       await officer?.deleteOne();
       res.status(200).send("Officer deleted successfully");
   

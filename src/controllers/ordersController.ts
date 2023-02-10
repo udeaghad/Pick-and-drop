@@ -12,7 +12,7 @@ export const createOrder = async(req: Request, res: Response, next: NextFunction
     const order = new Order(req.body);
     await order.save();
 
-    const officer = await Officer.findById(order.officerId);
+    const officer = await Officer.findById(order.officer);
     officer?.updateStatus("Pending");    
     officer?.save();
 
@@ -27,13 +27,13 @@ export const updateOrder = async(req: Request, res: Response, next: NextFunction
 
     const order = await Order.findByIdAndUpdate(req.params.orderId, { $set: req.body }, { new: true})
                              .lean()
-                             .populate("receiverId")
-                             .populate("senderId", ["name", "phoneNumber", "address", "location"])
-                             .populate("companyId", "name")
-                             .populate("officerId", ["name", "phoneNumber", "location"]);
+                             .populate("receiver", ["name", "phoneNumber", "city"])
+                             .populate("sender", ["name", "phoneNumber", "address", "location"])
+                             .populate("company", "name")
+                             .populate("officer", ["name", "phoneNumber", "location"]);
     const status: Status = req.body.status
     if(status){
-      const officer = await Officer.findById(order?.officerId)
+      const officer = await Officer.findById(order?.officer)
       officer?.updateStatus(status);
       officer?.save();
     }
@@ -48,10 +48,10 @@ export const getOrder = async(req: Request, res: Response, next: NextFunction) =
   try {
     const order: Order | null = await Order.findById(req.params.orderId)
                                            .lean()
-                                           .populate("receiverId", ["name", "phoneNumber", "city" ])
-                                           .populate("senderId", ["name", "phoneNumber", "address", "location"])
-                                           .populate("companyId", "name")
-                                           .populate("officerId", ["name", "phoneNumber", "location"]);;
+                                           .populate("receiver", ["name", "phoneNumber", "city" ])
+                                           .populate("sender", ["name", "phoneNumber", "address", "location"])
+                                           .populate("company", "name")
+                                           .populate("officer", ["name", "phoneNumber", "location"]);;
 
     if(!order) return res.status(404).send(`Order with ID-${req.params.orderId} does not exist`);
 
@@ -73,13 +73,13 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
       if(startDate && !endDate){
         const todayOrder = await Order.find({
           orderDate: { $gte: Date.parse(startDate.toString())},
-          companyId: req.params.companyId,         
+          company: req.params.companyId,         
         })
         .lean()
-        .populate("receiverId")
-        .populate("senderId", ["name", "phoneNumber", "address", "location"])
-        .populate("companyId", "name")
-        .populate("officerId", ["name", "phoneNumber", "location"])
+        .populate("receiver", ["name", "phoneNumber", "city"])
+        .populate("sender", ["name", "phoneNumber", "address", "location"])
+        .populate("company", "name")
+        .populate("officer", ["name", "phoneNumber", "location"])
         .sort({orderDate: 'desc'})
 
         return res.status(200).json(todayOrder)
@@ -91,13 +91,13 @@ export const getOrdersByDates = async(req: Request, res: Response, next: NextFun
             $gte: Date.parse(startDate.toString()),
             $lt: Date.parse(endDate.toString()) + OneDayValue,
           },
-          companyId: req.params.companyId,
+          company: req.params.companyId,
         })
         .lean()
-        .populate("receiverId")
-        .populate("senderId", ["name", "phoneNumber", "address", "location"])
-        .populate("companyId", "name")
-        .populate("officerId", ["name", "phoneNumber", "location"]).sort({orderDate: 'desc'})
+        .populate("receiver", ["name", "phoneNumber", "city"])
+        .populate("sender", ["name", "phoneNumber", "address", "location"])
+        .populate("company", "name")
+        .populate("officer", ["name", "phoneNumber", "location"]).sort({orderDate: 'desc'})
 
         return res.status(200).json(orderByDateRange);
       }

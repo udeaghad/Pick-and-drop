@@ -76,9 +76,9 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
 }
 
 export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
-  const { name, address, companyId, location, phoneNumber, password, confirmPassword} = req.body;
+  const { name, address, company, location, phoneNumber, password, confirmPassword} = req.body;
    
-  if(req.cookies.cookies.id !== companyId && req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
+  if(req.cookies.cookies.id !== company && !req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
   
   if(password !== confirmPassword) return res.status(401).send("Password does not match");
     try {
@@ -86,7 +86,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       const newOfficer = new Officer({
         name,
         address, 
-        companyId,
+        company,
         location,
         phoneNumber,
         password: hashPassword(password),
@@ -100,7 +100,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       } else {
         await newOfficer.save();
         
-        await Company.findByIdAndUpdate(companyId, { $push: {offices: newOfficer}})
+        await Company.findByIdAndUpdate(company, { $push: {offices: newOfficer}})
         
         res.status(201).send("Officer created successfully");
       }
@@ -141,7 +141,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
                                                .populate("offices", ["name", "location"]);
   const officer: Officer | null = await Officer.findOne({phoneNumber: req.body.phoneNumber})
                                                .lean()
-                                               .populate("companyId", ["name", "city" ]);
+                                               .populate("company", ["name", "city" ]);
  
   if(!company && !officer ) return res.status(404).send("Invalid Login Details")
   

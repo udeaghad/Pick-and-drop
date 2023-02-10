@@ -6,7 +6,7 @@ export interface IOfficer {
   name: string;
   password: string;
   address: string;
-  companyId: Types.ObjectId;
+  company: Types.ObjectId;
   location: string;
   phoneNumber: string;
   pending: number;
@@ -41,7 +41,7 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
     required: true,
   },
 
-  companyId: {
+  company: {
     type: Schema.Types.ObjectId, 
     ref: "Company", 
     requird: true

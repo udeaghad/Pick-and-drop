@@ -62,7 +62,7 @@ export const deleteCompany = async(req: Request, res: Response, next: NextFuncti
     try {
       
       await Company.findByIdAndDelete(req.params.companyId);
-      const offices = await Officer.find({companyId: req.params.companyId})
+      const offices = await Officer.find({company: req.params.companyId})
   
       offices.forEach(item => item.deleteOne())
       
