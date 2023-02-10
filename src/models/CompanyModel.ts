@@ -56,7 +56,7 @@ const CompanySchema = new Schema<ICompany>({
   },
 
   offices: {
-    type: [{type: Schema.Types.ObjectId, ref: "Officers", required: true}]
+    type: [{type: Schema.Types.ObjectId, ref: "Officer", required: true}]
   },
 
   logo: {

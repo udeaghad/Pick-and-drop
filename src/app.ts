@@ -31,7 +31,7 @@ app.use(express.json());
 /**cookie parser */
 app.use(cookieParser());
 
-app.get('*', (req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.send(`Error! Visit the https://pick-and-drop.onrender.com/api-docs for more information`)
 });
 app.use("/api/v1/auths", authsRoutes);

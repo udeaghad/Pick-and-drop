@@ -5,9 +5,8 @@ import app from "../app";
 
 
 dotenv.config();
-jest.setTimeout(10000);
-mongoose.set('strictQuery', true);
 const agent = request.agent(app);
+const baseURL = "/api/v1/auths"
 
 beforeEach(async () => {
   await mongoose.connect(String(process.env.DB_TEST));
@@ -20,7 +19,7 @@ afterEach(async () => {
 
 describe("Create Company", () => {
  
-  it("Should create a new company successfully!", (done) => {
+  it("Should create a new company successfully!", async() => {
     const companyInput = {
       name: "company2",
       email:"company2@example.com",
@@ -29,16 +28,21 @@ describe("Create Company", () => {
       state: "Anambra",
       password: "mypassword"
     }
-     
-     agent
-     .post('/api/v1/auths/register/company')
-     .send(companyInput)
-     .expect(200)
-     .end((err, res) => {
 
-       expect(res.status).toEqual(200);
-       return done();
-     })      
+    const { statusCode, text} = await agent.post(`${baseURL}/register/company`).send(companyInput)
+
+    expect(statusCode).toEqual(201)
+    expect(text).toBe("Company created successfully")
+     
+    //  agent
+    //  .post(`${baseURL}/register/company`)
+    //  .send(companyInput)
+    //  .expect(200)
+    //  .end((err, res) => {
+
+    //    expect(res.status).toEqual(200);
+    //    return done();
+    //  })      
     
     
   });

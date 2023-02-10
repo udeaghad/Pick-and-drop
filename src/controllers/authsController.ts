@@ -32,7 +32,7 @@ export const registerCompany = async(req:Request, res:Response, next:NextFunctio
 
     const companyExist: Company | null = await Company.findOne({name});
 
-    if(companyExist) return res.status(302).send("Company already exist");
+    if(companyExist) return res.status(409).send("Company already exist");
    
 
     await newCompany.save();
@@ -49,13 +49,23 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
   
   if(req.cookies.cookies.id !== req.params.companyId) return res.status(401).send("You are not authorised to perform this action");
 
+    const { currentPassword, newPassword } = req.body
   
     try {
+      
+      const company: Company | null  = await Company.findById(req.params.companyId).lean()
 
-      await Company.findByIdAndUpdate(
-        req.params.companyId, {$set: {password: hashPassword(req.body.password)}}, {new: true} 
-      )
-      res.status(200).send("Password updated successfully");
+      if(company) {
+
+        const { password } = company;
+        const validPassword = await bcrypt.compare(currentPassword, password);
+        if(!validPassword) return res.status(400).send("Invalid Login Details")
+
+        await Company.findByIdAndUpdate(
+          req.params.companyId, {$set: {password: hashPassword(newPassword)}}, {new: true} 
+        )
+        res.status(200).send("Password updated successfully");
+      }
     } catch (err) {
       next(err)
     }
@@ -82,7 +92,7 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
       
       if(officerExist){
         
-        return res.status(302).send("Officer with the phone already exist")
+        return res.status(409).send("Officer with the phone already exist")
       } else {
         await newOfficer.save();
         
@@ -99,13 +109,21 @@ export const registerOfficer = async(req: Request, res: Response, next: NextFunc
 export const updateOfficerPassword = async(req: Request, res: Response, next: NextFunction) => {
   
   if(req.cookies.cookies.id !== req.params.officerId) return res.status(401).send("You are not authorised to perform this action")
-
+      const { currentPassword, newPassword } = req.body
     try {
+      const officer: Officer | null  = await Officer.findById(req.params.officerId).lean()
+
+      if (officer) {
+        const { password } = officer;
+        const validPassword = await bcrypt.compare(currentPassword, password);
+        if(!validPassword) return res.status(400).send("Invalid Login Details")
+
+        await Officer.findByIdAndUpdate(
+          req.params.officerId, {$set: {password: hashPassword(newPassword)}}, {new: true} 
+          )
+          res.status(200).send("Password updated successfully");
+      }
   
-       await Officer.findByIdAndUpdate(
-         req.params.officerId, {$set: {password: hashPassword(req.body.password)}}, {new: true} 
-         )
-      res.status(200).send("Password updated successfully");
     } catch (err) {
       next(err)
     }
@@ -114,8 +132,12 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
   
 export const Login = async(req: Request, res: Response, next: NextFunction) => {  
     
-  const company: Company | null = await Company.findOne({email: req.body.email}).lean();
-  const officer: Officer | null = await Officer.findOne({phoneNumber: req.body.phoneNumber}).lean();
+  const company: Company | null = await Company.findOne({email: req.body.email})
+                                               .lean()
+                                               .populate("offices", ["name", "location"]);
+  const officer: Officer | null = await Officer.findOne({phoneNumber: req.body.phoneNumber})
+                                               .lean()
+                                               .populate("companyId", ["name", "city" ]);
  
   if(!company && !officer ) return res.status(404).send("Account does not exist")
   
@@ -124,7 +146,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
         const {_id, password, ...otherDetails }  = company;
     
         const validPassword = await bcrypt.compare(req.body.password, password);
-        if(!validPassword) return res.status(404).json({status: 404, message: "Invalid Login Details"})
+        if(!validPassword) return res.status(400).send("Invalid Login Details")
     
         const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)   
     
@@ -141,7 +163,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
           const {_id, password, ...otherDetails} = officer;
       
           const validPassword = await bcrypt.compare(req.body.password, password);
-          if(!validPassword) return res.status(404).send("Invalid Login Details")
+          if(!validPassword) return res.status(400).send("Invalid Login Details")
       
           const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)
       
