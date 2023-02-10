@@ -1,10 +1,11 @@
 import {Request, Response, NextFunction} from "express"
+import { Types } from "mongoose";
 import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
 import { ICompany } from "../models/CompanyModel";
 
 interface Company extends ICompany {
-  _id: string;
+  _id: Types.ObjectId;
 }
 
 export const getAllCompanies = async(req: Request, res: Response, next: NextFunction) => {

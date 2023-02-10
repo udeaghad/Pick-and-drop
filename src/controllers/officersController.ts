@@ -5,7 +5,7 @@ import Officer from "../models/OfficerModel";
 import { IOfficer } from "../models/OfficerModel";
 
 interface Officer extends IOfficer {
-  _id: string;
+  _id: Types.ObjectId;
 }
 
 export const getAllOfficers = async(req: Request, res: Response, next: NextFunction) => {

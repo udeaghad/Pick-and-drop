@@ -1,10 +1,11 @@
 import {Request, Response, NextFunction} from "express";
+import { Types } from "mongoose";
 import Receiver from "../models/receiverModel";
 import Sender from "../models/SenderModel";
 import { IReceiver } from "../models/receiverModel";
 
 interface Receiver extends IReceiver {
-  _id: string;
+  _id: Types.ObjectId;
 }
 
 export const createReceiver = async(req: Request, res: Response, next: NextFunction) => {

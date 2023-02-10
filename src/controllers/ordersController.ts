@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
 import Order from "../models/OrderModel";
 import Officer from "../models/OfficerModel";
 import { IOrder, Status } from "../models/OrderModel";
 
 interface Order extends IOrder {
-  _id: string;
+  _id: Types.ObjectId;
 }
 
 export const createOrder = async(req: Request, res: Response, next: NextFunction) => {
