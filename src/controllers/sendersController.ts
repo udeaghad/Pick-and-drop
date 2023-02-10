@@ -1,26 +1,18 @@
 import {Request, Response, NextFunction} from "express";
 import { Types } from "mongoose";
 import Sender from "../models/SenderModel";
+import { ISender } from "../models/SenderModel";
 
-interface SenderInterface {
-  _id?: Types.ObjectId;
-  name: string;
-  phoneNumber: string;
-  address: string;
-  location: string;
-  orders: Types.ObjectId[];
-  customers: Types.ObjectId[]; 
+interface Sender extends ISender {
+  _id: Types.ObjectId;
 }
 
-interface SenderType {
-  _doc: SenderInterface;
-}
 
 export const createSender = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const senderExist: SenderType | null = await Sender.findOne({phoneNumber: req.body.phoneNumber});
+    const senderExist: Sender | null = await Sender.findOne({phoneNumber: req.body.phoneNumber}).lean();
 
-    if(senderExist) return res.status(200).json( senderExist._doc );
+    if(senderExist) return res.status(200).json( senderExist );
 
     const sender = new Sender(req.body)    
 
@@ -33,7 +25,7 @@ export const createSender = async(req: Request, res: Response, next: NextFunctio
 
 export const updateSender = async(req: Request, res: Response, next: NextFunction) => {
    try {
-     const sender: SenderType | null = await Sender.findByIdAndUpdate(req.params.senderId, {$set: req.body}, {new: true})
+     const sender: Sender | null = await Sender.findByIdAndUpdate(req.params.senderId, {$set: req.body}, {new: true})
      res.status(200).json(sender);
    } catch (err) {
      next(err)
@@ -42,7 +34,9 @@ export const updateSender = async(req: Request, res: Response, next: NextFunctio
 
 export const getSender = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const sender: SenderType | null = await Sender.findById(req.params.senderId)
+    const sender: Sender | null = await Sender.findById(req.params.senderId)
+                                              .lean()
+                                              .populate("customers", ["name", "phoneNumber", "city"])
     if(!sender) return res.status(404).send("Sender Info does not exist")
     res.status(200).json(sender)
   } catch (err) {

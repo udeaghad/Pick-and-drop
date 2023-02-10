@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const status = ["Pending", "Viewed", "Received", "On Transit", "Delivered"] as const;
 
-type Status = typeof status[number];
+export type Status = typeof status[number];
 
 export type DeliverPoint = "Park" | "Home";
 

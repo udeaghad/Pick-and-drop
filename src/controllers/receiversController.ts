@@ -3,6 +3,10 @@ import Receiver from "../models/receiverModel";
 import Sender from "../models/SenderModel";
 import { IReceiver } from "../models/receiverModel";
 
+interface Receiver extends IReceiver {
+  _id: string;
+}
+
 export const createReceiver = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const receiver = new Receiver(req.body)
@@ -25,7 +29,7 @@ export const createReceiver = async(req: Request, res: Response, next: NextFunct
 
 export const updateReceiver = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const receiver: IReceiver | null = await Receiver.findByIdAndUpdate(req.params.receiverId, {$set: req.body}, {new: true})
+    const receiver: Receiver | null = await Receiver.findByIdAndUpdate(req.params.receiverId, {$set: req.body}, {new: true})
     res.status(200).json(receiver);
   } catch (err) {
     next(err)
@@ -34,7 +38,7 @@ export const updateReceiver = async(req: Request, res: Response, next: NextFunct
 
 export const getReceiver = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const receiver: IReceiver | null = await Receiver.findById(req.params.receiverId).lean();
+    const receiver: Receiver | null = await Receiver.findById(req.params.receiverId).lean();
     if(!receiver) return res.status(404).send("Receiver records does not exisit")
 
     res.status(200).json(receiver)
