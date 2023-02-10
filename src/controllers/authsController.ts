@@ -62,7 +62,7 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
 
         const { password } = company;
         const validPassword = await bcrypt.compare(currentPassword, password);
-        if(!validPassword) return res.status(400).send("Invalid Login Details")
+        if(!validPassword) return res.status(401).send("Invalid Login Details")
 
         await Company.findByIdAndUpdate(
           req.params.companyId, {$set: {password: hashPassword(newPassword)}}, {new: true} 

@@ -27,6 +27,8 @@ paths:
     post:
       summary: Create a company
       description: Create a logistic company to offer services
+      tags:
+        - Authentication
       produces:
         - application/json
       consumes:
@@ -63,8 +65,12 @@ paths:
                 type: string
                 description: The login password
                 required: true
+              confirmPassword:
+                type: string
+                description: Comfirm password
+                required: true
       responses:
-        200:
+        201:
           description: Success
         400:
           description: Bad Request
@@ -75,6 +81,8 @@ paths:
     post:
       summary: Register an Officer
       description: Register an Officer by a Comapany Admin
+      tags:
+        - Authentication
       produces:
         - application/json
       consumes:
@@ -107,14 +115,19 @@ paths:
                 type: string
                 description: password of the officer
                 required: true
-              companyId:
+              confirmPassword:
+                type: string
+                description: comfirm password
+              company:
                 type: string
                 description: company ID of the company
                 required: true
       
       responses:
-        200:
+        201:
           description: Success
+        400:
+          description: Bad Request
         401:
           description: You are not authorised to perform this action
         500:
@@ -124,6 +137,8 @@ paths:
     post:
       summary: Account login
       description: Allows the company admin or officer to login
+      tags:
+        - Authentication
       produces:
         - application/json
       consumes:
@@ -154,11 +169,11 @@ paths:
           schema:
             oneOf:
               - $ref: "#/definitions/Company"
-              - $ref: '#/definitions/Officer'
+              - $ref: "#/definitions/Officer"
         400:
           description: Bad request
         404:
-          description: Account does not exist
+          description: Invalid Login Details
         500:
           description: Internal Server Error
 
@@ -166,6 +181,8 @@ paths:
     post:
       summary: Update/change password for company
       description: To change or update password for company admin
+      tags:
+        - Authentication
       parameters:
         - name: companyId
           in: path
@@ -178,7 +195,11 @@ paths:
           schema:
             type: object
             properties:
-              password:
+              currentPassword:
+                type: string
+                description: The current password to be changed
+                required: true
+              newPassword:
                 type: string
                 description: The new password
                 required: true
@@ -188,7 +209,7 @@ paths:
         400:
           description: Bad Request
         401:
-          description: You are not authorised to perform this action
+          description: Invalid Login Details
         500:
          description: Internal Server Error
 
@@ -196,6 +217,7 @@ paths:
     post:
       summary: Update/change password for officer
       description: To change or update password for officer
+      tags:
       parameters:
         - name: officerId
           in: path
@@ -208,7 +230,11 @@ paths:
           schema:
             type: object
             properties:
-              password:
+              currentPassword:
+                type: string
+                description: The current password to be changed
+                required: true
+              newPassword:
                 type: string
                 description: The new password
                 required: true
@@ -218,7 +244,7 @@ paths:
         400:
           description: Bad Request
         401:
-          description: You are not authorised to perform this action
+          description: Invalid Login Details
         500:
          description: Internal Server Error
 
@@ -226,6 +252,8 @@ paths:
     get:
       summary: Get all companies
       description: Retrieve records for all companies
+      tags:
+        - Company
       responses:
         200: 
           description: Success
@@ -242,6 +270,8 @@ paths:
     get:
       summary: Get a company
       description: Retrieve records for a company
+      tags:
+        - Company
       parameters:
         - name: companyId
           in: path
@@ -260,6 +290,8 @@ paths:
     put:
       summary: Update Company
       description: Update records of a company
+      tags:
+        - Company
       parameters:
         - name: companyId
           in: path
@@ -300,6 +332,8 @@ paths:
     delete:
       summary: delete a company
       description: Delete company records
+      tags:
+        - Company
       parameters:
         - name: companyId
           in: path
@@ -317,6 +351,8 @@ paths:
     get:
       summary: Get all company officers
       description: Retrieves the record of all officers in a company
+      tags:
+        - Officer
       parameters:
         - name: companyId
           in: path
@@ -338,6 +374,8 @@ paths:
     get:
       summary: Get records of an Officer
       description: Retrieve the records of an officer
+      tags:
+        - Officer
       parameters:
         - name: officerId
           in: path
@@ -360,6 +398,8 @@ paths:
     put:
       summary: Update officer's records
       description: Update officer's records by the officer or company Admin
+      tags:
+        - Officer
       parameters:
         - name: officerId
           in: path
@@ -403,6 +443,8 @@ paths:
     delete:
       summary: Delete officer
       desciption: Delete officer of a company
+      tags:
+        - Officer
       parameters:
         - name: officerId
           in: path
@@ -426,6 +468,8 @@ paths:
     post:
       summary: Create a sender record
       description: To create a record for a sender who books the order
+      tags:
+        - Sender
       produces:
         - application/json
       consumes:
@@ -468,6 +512,8 @@ paths:
     put:
       summary: Update Sender Records
       description: To update record of a sender
+      tags:
+        - Sender
       parameters:
         - name: senderId
           in: path
@@ -505,6 +551,8 @@ paths:
     get:
       summary: Get sender details
       description: To Retrieve the records of a sender with a sender ID
+      tags:
+        - Sender
       parameters:
         - name: senderId
           in: path
@@ -524,6 +572,8 @@ paths:
     post:
       summary: Create Reciever records
       description: To create receiver of an order by sender
+      tags:
+        - Receiver
       produces:
         - application/json
       consumes:
@@ -566,6 +616,8 @@ paths:
     put:
       summary: Update Receiver records
       description: Update the record details of a receiver using the receiver unique ID
+      tags:
+        - Receiver
       produces:
         - application/json
       consumes:
@@ -603,6 +655,8 @@ paths:
     get:
       summary: Get Receiver Records
       description: Retrieve the records of Receiver
+      tags:
+        - Receiver
       parameters:
         - name: receiverId
           in: path
@@ -622,6 +676,8 @@ paths:
     post:
       summary: Create a new order
       description: Create a new order by the sender
+      tags:
+        - Order
       produces:
         - application/json
       consumes:
@@ -638,19 +694,19 @@ paths:
                 type: string
                 description: The item to be sent/delivered
                 required: true
-              companyId:
+              company:
                 type: string
                 description: The unique ID of the delivery company
                 required: true
-              receiverId:
+              receiver:
                 type: string
                 description: The unique ID of the receiver
                 required: true
-              senderId:
+              sender:
                 type: string
                 description: The unique ID of the sender
                 required: true
-              officerId:
+              officer:
                 type: string
                 description: The unique ID of the receiver
                 required: true
@@ -688,6 +744,8 @@ paths:
     put:
       summary: Update Order records
       description: To update order records including status
+      tags:
+        - Order
       parameters:
         - name: orderId
           in: path
@@ -703,16 +761,16 @@ paths:
               content:
                 type: string
                 description: The item to be sent/delivered
-              companyId:
+              company:
                 type: string
                 description: The unique ID of the delivery company
-              receiverId:
+              receiver:
                 type: string
                 description: The unique ID of the receiver
-              senderId:
+              sender:
                 type: string
                 description: The unique ID of the sender
-              officerId:
+              officer:
                 type: string
                 description: The unique ID of the receiver
               deliveryPoint:
@@ -743,6 +801,8 @@ paths:
     get:
       summary: Get details of an Order
       description: Retrieve details of an order using the order ID
+      tags:
+        - Order
       parameters:
         - name: orderId
           in: path
@@ -762,6 +822,8 @@ paths:
     get:
       summary: Get orders with dates
       descriptions: Retrieve orders using start date and end date
+      tags:
+        - Order
       parameters:
         - name: companyId
           in: path
@@ -855,7 +917,7 @@ definitions:
         type: string
         description: Phone number of Officer
         required: true   
-      companyId:
+      company:
         type: string
         description: Unique ID of the company
         required: true
@@ -933,13 +995,13 @@ definitions:
         type: string
         description: The item to be sent/delivered
         required: true
-      companyId:
+      company:
         $ref: '#/definitions/Company'
-      receiverId:
+      receiver:
         $ref: '#/definitions/Receiver'
-      senderId:
+      sender:
         $ref: '#/definitions/Sender'
-      officerId:
+      officer:
         $ref: '#/definitions/Officer'
       deliveryPoint:
         type: string
@@ -975,6 +1037,9 @@ definitions:
       deliveryAgent:
         type: string
         description: The name of the company rider or delivery officer
+      deliveryAddress:
+        type: string
+        description: The name of transport company/park or home address
       viewedBy:
         type: string
         description: The name of the officer that viewed the order
