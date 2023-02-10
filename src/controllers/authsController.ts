@@ -18,7 +18,10 @@ interface Officer extends IOfficer {
 const secretKey: Secret = String(process.env.JWT);
 
 export const registerCompany = async(req:Request, res:Response, next:NextFunction) => {
-  const {name, email, phoneNumber, city, state, password, logo} = req.body;
+  const {name, email, phoneNumber, city, state, password, confirmPassword, logo} = req.body;
+
+  if(password !== confirmPassword) return res.status(401).send("Password does not match");
+
   try {
 
     const newCompany = new Company({
@@ -73,10 +76,11 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
 }
 
 export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
-  const { name, address, companyId, location, phoneNumber, password} = req.body;
+  const { name, address, companyId, location, phoneNumber, password, confirmPassword} = req.body;
    
   if(req.cookies.cookies.id !== companyId && req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
-
+  
+  if(password !== confirmPassword) return res.status(401).send("Password does not match");
     try {
       
       const newOfficer = new Officer({
@@ -139,7 +143,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
                                                .lean()
                                                .populate("companyId", ["name", "city" ]);
  
-  if(!company && !officer ) return res.status(404).send("Account does not exist")
+  if(!company && !officer ) return res.status(404).send("Invalid Login Details")
   
   if(company){
     try {
