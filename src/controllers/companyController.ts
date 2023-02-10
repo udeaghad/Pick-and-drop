@@ -3,9 +3,13 @@ import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
 import { ICompany } from "../models/CompanyModel";
 
+interface Company extends ICompany {
+  _id: string;
+}
+
 export const getAllCompanies = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const allCompanies: ICompany[] = await Company.find().lean();
+    const allCompanies: Company[] = await Company.find().lean();
 
     const result = allCompanies.map(company => {     
     const {password, ...otherDetails } = company;
@@ -19,7 +23,7 @@ export const getAllCompanies = async(req: Request, res: Response, next: NextFunc
 
 export const getCompany = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const company: ICompany | null = await Company.findById(req.params.companyId).lean();
+    const company: Company | null = await Company.findById(req.params.companyId).lean();
     if(!company) return res.status(404).send("Record not found")
     const { password, ...otherDetails } = company;
     res.status(200).json(otherDetails)
@@ -35,7 +39,7 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
     try {
       const {password, ...bodyDetails } = req.body;
   
-      const company: ICompany | null= await Company.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true}).lean();
+      const company: Company | null = await Company.findByIdAndUpdate(req.params.companyId, {$set: bodyDetails}, {new: true}).lean();
       
       if(!company) return res.status(400).send("Record does not exist")
       
@@ -51,7 +55,10 @@ export const updateCompany = async(req: Request, res: Response, next: NextFuncti
 }
 
 export const deleteCompany = async(req: Request, res: Response, next: NextFunction) => {
-  if(req.cookies.cookies.id === req.params.companyId && req.cookies.cookies.isAdmin){
+
+  if(req.cookies.cookies.id !== req.params.companyId || !req.cookies.cookies.isAdmin) {
+    return res.status(401).send("You are not authorised to perform this action")
+  }
 
     try {
       
@@ -65,7 +72,5 @@ export const deleteCompany = async(req: Request, res: Response, next: NextFuncti
     } catch (err) {
       next(err)
     }
-  }else {
-    res.status(401).send("You are not authorised to perform this action")
-  }
+  
 }
