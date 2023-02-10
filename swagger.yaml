@@ -218,6 +218,7 @@ paths:
       summary: Update/change password for officer
       description: To change or update password for officer
       tags:
+        - Authentication
       parameters:
         - name: officerId
           in: path
