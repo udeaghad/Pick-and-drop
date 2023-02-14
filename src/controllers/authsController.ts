@@ -143,14 +143,14 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
                                                .lean()
                                                .populate("company", ["name", "city" ]);
  
-  if(!company && !officer ) return res.status(404).send("Invalid Login Details")
+  if(!company && !officer ) return res.status(401).send("Invalid Login Details")
   
   if(company){
     try {
         const {_id, password, ...otherDetails }  = company;
     
         const validPassword = await bcrypt.compare(req.body.password, password);
-        if(!validPassword) return res.status(400).send("Invalid Login Details")
+        if(!validPassword) return res.status(401).send("Invalid Login Details")
     
         const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)   
     

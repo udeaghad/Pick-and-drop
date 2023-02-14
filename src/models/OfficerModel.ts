@@ -27,8 +27,7 @@ type Status = "Pending" | "Viewed" | "Received" | "On Transit" | "Delivered";
 const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
   name: {
     type: String,
-    required: true,
-    lowercase: true,
+    required: [true, "name must be provided"]
   },
 
   password: {
@@ -38,21 +37,23 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
 
   address: {
     type: String,
-    required: true,
+    required: [true, "address must be provided"],
   },
 
   company: {
     type: Schema.Types.ObjectId, 
     ref: "Company", 
-    requird: true
+    requird: [true, "Company ID must be provided"]
   },
 
   location: {
     type: String,
+    required: [true, "location must be provided"]
   },
 
   phoneNumber: {
     type: String,
+    required: [true, "Phone Number must be provided"]
   },
 
   pending: {

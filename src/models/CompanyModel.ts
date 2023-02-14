@@ -18,9 +18,8 @@ export interface ICompany {
 const CompanySchema = new Schema<ICompany>({
   name: {
     type: String,
-    required: true,
+    required: [true, "name must be provided"],
     unique: true,
-    lowercase: true,
   },
 
   email: {
@@ -28,7 +27,7 @@ const CompanySchema = new Schema<ICompany>({
     match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please add a valid email address.',
     ],
-    required: [true, 'Please enter Email Address'],
+    required: [true, 'Email Address must be provided'],
     unique: true,
     lowercase: true,
     dropDups: true,
@@ -36,23 +35,23 @@ const CompanySchema = new Schema<ICompany>({
 
   phoneNumber: {
     type: String,
-    required: true,
+    required: [true, 'Phone number must be provided'],
     unique: true,
   },
 
   city: {
     type: String,
-    required: true,
+    required: [true, "City must be provided"],
   },
 
   state: {
     type: String,
-    required: true,
+    required: [true, "State must be provided"],
   },
 
   password: {
     type: String,
-    required: true,    
+    required: [true, "Password must be provided"],    
   },
 
   offices: {

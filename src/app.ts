@@ -47,10 +47,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 /**Error Handler */
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
-  res.status(error.status || 500)
+  res.status(error.status || 400)
   res.json({
     success: false,
-    status: error.status || 500,
+    status: error.status || 400,
     message: error.message || "Sorry! something went wrong"
   })
   next();
