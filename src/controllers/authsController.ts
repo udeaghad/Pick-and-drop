@@ -78,7 +78,7 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
 export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
   const { name, address, company, location, phoneNumber, password, confirmPassword} = req.body;
    
-  if(req.cookies.cookies.id !== company && !req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
+  if(req.cookies.cookies.id !== company || !req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
   
   if(password !== confirmPassword) return res.status(401).send("Password does not match");
     try {
@@ -120,7 +120,7 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
       if (officer) {
         const { password } = officer;
         const validPassword = await bcrypt.compare(currentPassword, password);
-        if(!validPassword) return res.status(400).send("Invalid Login Details")
+        if(!validPassword) return res.status(401).send("Invalid Login Details")
 
         await Officer.findByIdAndUpdate(
           req.params.officerId, {$set: {password: hashPassword(newPassword)}}, {new: true} 
@@ -167,7 +167,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
           const {_id, password, ...otherDetails} = officer;
       
           const validPassword = await bcrypt.compare(req.body.password, password);
-          if(!validPassword) return res.status(400).send("Invalid Login Details")
+          if(!validPassword) return res.status(401).send("Invalid Login Details")
       
           const token = jwt.sign({id: _id, isAdmin: otherDetails.isAdmin}, secretKey)
       

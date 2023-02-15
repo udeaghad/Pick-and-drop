@@ -1,152 +1,108 @@
-import mongoose from "mongoose";
 import request from "supertest";
-import dotenv from "dotenv";
 import app from "../app";
+import { connect, clearDatabase, closeDatabase} from "./db"
 
-dotenv.config();
-mongoose.set('strictQuery', true);
-jest.setTimeout(10000);
 const agent = request.agent(app);
-
-beforeEach(async () => {
-  await mongoose.connect(String(process.env.DB_TEST));
-});
-
-/* Closing database connection after each test. */
-afterEach(async () => {
-  await mongoose.connection.close();
-});
+const baseURL = "/api/v1/companies"
+jest.setTimeout(10000) 
 
 
+beforeAll(async () => await connect());
+
+afterAll(async () =>  await closeDatabase());
+
+afterEach(async () => await clearDatabase())
 
 describe("Company", () => {
- 
-  it("Should get all companies", (done) => {
+  let companyId: string;
+  let cookies: string[];
 
-    agent
-    .get("/api/v1/companies")
-    .end((err, res) => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.length).toBeGreaterThanOrEqual(0)
-      return done()
-    })
+  beforeEach(async () => {
+
+    const companyInput1 = {
+      name: "company2",
+      email:"company2@example.com",
+      phoneNumber: "2348080425123",
+      city: "Onitsha",
+      state: "Anambra",
+      password: "mypassword",
+      confirmPassword: "mypassword"
+    }
+
+    const companyInput2 = {
+      name: "company3",
+      email:"company3@example.com",
+      phoneNumber: "48080425123",
+      city: "Ikeja",
+      state: "Lagos",
+      password: "mypassword",
+      confirmPassword: "mypassword"    
+    }
+  
+  await agent.post(`/api/v1/auths/register/company`).send(companyInput1)
+  await agent.post(`/api/v1/auths/register/company`).send(companyInput2)
+
+  const res = await agent.post("/api/v1/auths/login").send({email:"company3@example.com", password: "mypassword"})
+  companyId = res.body._id
+  cookies = res.get("Set-Cookie")
   })
 
-  it("Should get a company with provided ID", (done) => {
-    agent
-    .get("/api/v1/companies")
-    .end((err, res) => {      
-      if(res.body.length > 0){        
-        agent
-        .get(`/api/v1/companies/${res.body[0]._id}`)
-        .end((err, res) => {
-            expect(res.statusCode).toEqual(200)
-            return done()
-        })
+  it("Should get all companies", async () => {
+
+    const { body, statusCode } = await agent.get(baseURL)
+    console.log(body)
+    expect(statusCode).toEqual(200)
+    expect(body).toHaveLength(2)
+  })
+
+  it("Should get a company with company ID", async () => {
+    const { body, statusCode } = await agent.get(`${baseURL}/${companyId}`)
+
+    expect(statusCode).toEqual(200);
+    expect(body._id).toBe(companyId);
+    expect(body.name).toBe("company3");
+    expect(body.email).toBe("company3@example.com");
+    expect(body.phoneNumber).toBe("48080425123");
+    expect(body.city).toBe("Ikeja");
+    expect(body.state).toBe("Lagos");
+  })
+
+  it("Should update company details successfully", async () => {
+      const updateDetails = {
+        city: "New York",
       }
-      return done()
+
+      const { statusCode, body } = await agent.put(`${baseURL}/${companyId}`)
+                                              .set("Cookie", cookies)
+                                              .send(updateDetails)
+
+      
+
+      expect(statusCode).toEqual(200);
+      expect(body.city).toBe("New York")
+      expect(body.isAdmin).toBe(true)
     })
-  })
-})
 
-describe("Update company", () => {
- 
-  it("Should return successful on company details update", (done) => {
-     const companyLoginDetails = {
-      email: "company2@example.com",
-      password: "mypassword"
-     }
+  it("Should return error if company ID is wrong", async () => {
+    const updateDetails = {
+      city: "New York"
+    }
 
-     const updateDetail = {
-      city: "Lagos"
-     }
+    const { statusCode, text } = await agent.put(`${baseURL}/12345678`)
+                                            .set("Cookie", cookies)
+                                            .send(updateDetails)
 
-    agent
-    .post("/api/v1/auths/login/company")
-    .send(companyLoginDetails)
-    .expect(200)
-    .end((err, res) => {
-      agent
-      .put(`/api/v1/companies/${res.body._id}`)
-      .set('Cookie', [res.header['set-cookie']])
-      .send(updateDetail)
-      .expect(200)
-      .end((err, res) => {        
-        expect(res.statusCode).toEqual(200)
-        expect(res.body.city).toBe("Lagos")
-        return done()        
-      })
-    })
+    expect(statusCode).toEqual(401);
+    expect(text).toBe("You are not authorised to make changes")
   })
 
-  it("Should return error if company ID is wrong", (done) => {
-    const companyLoginDetails = {
-      email: "company2@example.com",
-      password: "mypassword"
-     }
+  it("Should delete a company successfully", async () => {
 
-     const updateDetail = {
-      city: "Lagos"
-     }
-
-    agent
-    .post("/api/v1/auths/login/company")
-    .send(companyLoginDetails)
-    .expect(200)
-    .end((err, res) => {
-      agent
-      .put(`/api/v1/companies/${123456}`)
-      .set('Cookie', [res.header['set-cookie']])
-      .send(updateDetail)
-      .expect(200)
-      .end((err, res) => {        
-        expect(res.statusCode).toEqual(401)
-        expect(res.text).toBe("You are not authorised to make changes")
-        return done()        
-      })
-    })
+    const { statusCode, text } = await agent.delete(`${baseURL}/${companyId}`)
+                                            .set("Cookie", cookies)
+    
+    expect(statusCode).toEqual(200)
+    expect(text).toBe("Company deleted successfully")
   })
-})
 
-describe("Delete Company", () => {
- 
-
-  it("Should delete company successfully", (done) => {
-    const companyInput = {
-     name: "company3",
-     email:"company3@example.com",
-     phoneNumber: "2348080425663",
-     city: "Ikeja",
-     state: "Lagos",
-     password: "mypassword"
-   }
-    const companyLoginDetails = {
-      email: "company3@example.com",
-      password: "mypassword"
-     }
-//Create company
-     agent
-     .post('/api/v1/auths/register/company')
-     .send(companyInput)
-     .expect(200)
-     .end(() => { 
-      //Login to company     
-        agent
-          .post("/api/v1/auths/login/company")
-          .send(companyLoginDetails)
-          .expect(200)
-          .end((err, res) => {
-          //Delete company
-            agent
-            .delete(`/api/v1/companies/${res.body._id}`)
-            .set('Cookie', [res.header['set-cookie']])
-            .expect(200)
-            .end((err, res) => {
-              expect(res.statusCode).toEqual(200)
-              expect(res.text).toBe("Company deleted successfully")
-              return done()
-            })
-         })
-      })
-   })
 })

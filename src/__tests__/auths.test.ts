@@ -4,11 +4,11 @@ import { connect, clearDatabase, closeDatabase} from "./db"
 
 const agent = request.agent(app);
 const baseURL = "/api/v1/auths"
-jest.setTimeout(10000) 
+jest.setTimeout(5000) 
+
 
 beforeAll(async () => await connect());
 
-/* Closing database connection after each test. */
 afterAll(async () =>  await closeDatabase());
 
 afterEach(async () => await clearDatabase())
@@ -222,7 +222,7 @@ describe("Login Company", () => {
 
   it("Should update password successfully", async () => {
     const loginDetails = {
-      email: "company3@example.com",
+      email: "company2@example.com",
       password: "mypassword"
     }
 
@@ -231,9 +231,9 @@ describe("Login Company", () => {
       newPassword: "password123"
     }
 
-    const res = await agent.post(`${baseURL}/login`).send(loginDetails).expect(200)
+    const res = await agent.post(`${baseURL}/login`).send(loginDetails)
     const cookies = res.get("Set-Cookie")
-
+    
     const { text, statusCode } = await agent.post(`${baseURL}/password/company/${res.body._id}`)
                                             .set("Cookie", cookies)
                                             .send(updateDetails)
@@ -241,9 +241,9 @@ describe("Login Company", () => {
     expect(text).toBe("Password updated successfully")
   })
 
-  it("Should return error on password change if the current password is wrong", async () => {
+  it("Should return error on on wrong  current password", async () => {
     const loginDetails = {
-      email: "company3@example.com",
+      email: "company2@example.com",
       password: "mypassword"
     }
 
@@ -252,13 +252,13 @@ describe("Login Company", () => {
       newPassword: "password123"
     }
 
-    const res = await agent.post(`${baseURL}/login`).send(loginDetails).expect(200)
+    const res = await agent.post(`${baseURL}/login`).send(loginDetails)
     const cookies = res.get("Set-Cookie")
 
     const { text, statusCode } = await agent.post(`${baseURL}/password/company/${res.body._id}`)
                                             .set("Cookie", cookies)
                                             .send(updateDetails)
-    expect(statusCode).toEqual(400);
+    expect(statusCode).toEqual(401);
     expect(text).toBe("Invalid Login Details")
   })
 })
@@ -266,7 +266,7 @@ describe("Login Company", () => {
 describe("Officer", () => {
 
   let company: string
-  let cookies: any;
+  let cookies: string[];
 
   beforeEach(async () => {
     //Create Company
@@ -373,11 +373,11 @@ describe("Officer", () => {
       confirmPassword: "mypassword",
     }
     
-    const { body, statusCode } = await agent.post(`${baseURL}/register/officer`)
+    const { text, statusCode } = await agent.post(`${baseURL}/register/officer`)
                                              .set('Cookie', cookies)
                                              .send(officerDetails)
-    expect(statusCode).toEqual(400);
-    expect(body.message).toBe("Officer validation failed: company: Company ID must be provided")
+    expect(statusCode).toEqual(401);
+    expect(text).toBe("You are not authorised to perform this action")
   })
 
   it("Should return error if phone number is missing", async () => {
@@ -431,128 +431,139 @@ describe("Officer", () => {
     expect(statusCode).toEqual(401);
     expect(text).toBe("Password does not match")
   })
-  
-  
-
 })
 
-//   it("Should login officer successfully", (done) => {
-//     const officerLoginDetails = {
-//       phoneNumber: "08033548",
-//       password: "mypassword"
-//     }
-
-//     agent
-//     .post("/api/v1/auths/login/company")
-//     .send(officerLoginDetails)
-//     .expect(200)
-//     .end((err, res) => {
-//       expect(res.statusCode).toEqual(200)
-//       return done()
-//     })
-//   })
-
-//   it("Should return error on wrong phone number", (done) => {
-//     const officerLoginDetails = {
-//       phoneNumber: "0803",
-//       password: "mypassword"
-//     }
+describe("Login Officer", () => {
+  
+  beforeEach(async () => {
+    //Create company
+    const companyInput = {
+      name: "company2",
+      email:"company2@example.com",
+      phoneNumber: "2348080425123",
+      city: "Onitsha",
+      state: "Anambra",
+      password: "mypassword",
+      confirmPassword: "mypassword",
+      isAdmin: true
+    }
     
-//         agent
-//         .post("/api/v1/auths/login/company")
-//         .send(officerLoginDetails)
-//         .expect(404)
-//         .end((err, res) => {
+     await agent.post(`${baseURL}/register/company`).send(companyInput).expect(201)
     
-//           expect(res.statusCode).toEqual(404)
-//           return done();
-//         })
-        
-        
-//       })
+     //Login company to get companyId
+     const loginDetails = {
+      email: "company2@example.com",
+      password: "mypassword"
+    }
 
-//   it("Should return error on wrong password", (done) => {
-//     const officerLoginDetails = {
-//       phoneNumber: "08033548",
-//       password: "wrongpassword"
-//     }
-    
-//         agent
-//         .post("/api/v1/auths/login/company")
-//         .send(officerLoginDetails)
-//         .expect(404)
-//         .end((err, res) => {
-    
-//           expect(res.statusCode).toEqual(404)
-//           return done();
-//         })
-        
-        
-//       })
-// })
+    const res = await agent.post(`${baseURL}/login`).send(loginDetails).expect(200)  
+    const company = res.body._id
+    const companyCookies = res.get("Set-Cookie") 
 
-// describe("Update password", () => {
+    //Create Officer
+    const officerDetails = {
+      name: "Joy",
+      address: "Headbridge",
+      company,
+      location: "Main mkt",
+      phoneNumber: "08033548",
+      password: "mypassword",
+      confirmPassword: "mypassword",
+    }
 
-//   it("Should update company password successfully", (done) => {
-    
-//       const loginDetails = {
-//         email: "company2@example.com",
-//         password: "mypassword"
-//       }
+    const officerRes = await agent.post(`${baseURL}/register/officer`)
+                                            .set('Cookie', companyCookies)
+                                            .send(officerDetails)
+                                            .expect(201)
 
-//       const updateDetail = {
-//         password: "mypassword"
-//       }
-//     agent
-//     .post("/api/v1/auths/login/company")
-//     .send(loginDetails)
-//     .expect(200)
-//     .end((err, res) => {
+  })
 
-//       agent
-//       .post(`/api/v1/auths/password/company/${res.body._id}`)
-//       .set('Cookie', [res.header['set-cookie']])
-//       .send(updateDetail)
-//       .expect(200)
-//       .end((err, res) => {        
-//         expect(res.text).toBe("Password updated successfully")
-//         return done()
-        
-//       })
+  it("Should login successfully", async () => {
+    const loginDetails = {
+      phoneNumber: "08033548",
+      password: "mypassword",
+    }
 
-    
-//     })
-              
-//   })
+    const { body, statusCode } = await agent.post(`${baseURL}/login`).send(loginDetails)
+    expect(statusCode).toEqual(200)
+    expect(body.name).toBe("Joy")
+    expect(body.address).toBe("Headbridge")
+    expect(body.location).toBe("Main mkt")
+    expect(body.phoneNumber).toBe("08033548")
+  } )
 
-//   it("Should update officer password successfully", (done) => {
-//     const officerLoginDetails = {
-//       phoneNumber: "08033548",
-//       password: "mypassword"
-//     }
+  it("Should error on wrong password", async () => {
+    const loginDetails = {
+      phoneNumber: "08033548",
+      password: "massword",
+    }
 
-//     const updateDetail = {
-//       password: "mypassword"
-//     }
+    const { text, statusCode } = await agent.post(`${baseURL}/login`).send(loginDetails)
+    expect(statusCode).toEqual(401)
+    expect(text).toBe("Invalid Login Details")
+  } )
 
-//     agent
-//     .post("/api/v1/auths/login/company")
-//     .send(officerLoginDetails)
-//     .expect(200)
-//     .end((err, res) => {
+  it("Should error on wrong phone number", async () => {
+    const loginDetails = {
+      phoneNumber: "080",
+      password: "massword",
+    }
 
-//       agent
-//       .post(`/api/v1/auths/password/officer/${res.body._id}`)
-//       .set('Cookie', [res.header['set-cookie']])
-//       .send(updateDetail)
-//       .expect(200)
-//       .end((err, res) => {        
-//         expect(res.text).toBe("Password updated successfully")
-//         return done()
-        
-//       })
-   
-//     })
+    const { text, statusCode } = await agent.post(`${baseURL}/login`).send(loginDetails)
+    expect(statusCode).toEqual(401)
+    expect(text).toBe("Invalid Login Details")
+  } )
 
-//   }) 
-// })
+  it("Should update password successfully", async () => {
+
+    //login officer
+    const loginDetails = {
+      phoneNumber: "08033548",
+      password: "mypassword",
+    }
+
+    const res = await agent.post(`${baseURL}/login`).send(loginDetails)
+    const cookies = res.get("Set-Cookie")
+    const officerId = res.body._id
+
+    //update officer password
+
+    const updateDetails = {
+      currentPassword: "mypassword",
+      newPassword: "newpassword"
+    }
+
+    const { text, statusCode } = await agent.post(`${baseURL}/password/officer/${officerId}`)
+                                             .set("Cookie", cookies)
+                                             .send(updateDetails)
+    expect(statusCode).toEqual(200)
+    expect(text).toBe("Password updated successfully")
+  })
+
+  it("Should return error on wrong current password", async () => {
+    //login officer
+    const loginDetails = {
+      phoneNumber: "08033548",
+      password: "mypassword",
+    }
+
+    const res = await agent.post(`${baseURL}/login`).send(loginDetails)
+    const cookies = res.get("Set-Cookie")
+    const officerId = res.body._id
+
+    //update officer password
+
+    const updateDetails = {
+      currentPassword: "assword",
+      newPassword: "newpassword"
+    }
+
+    const { text, statusCode } = await agent.post(`${baseURL}/password/officer/${officerId}`)
+                                             .set("Cookie", cookies)
+                                             .send(updateDetails)
+    expect(statusCode).toEqual(401)
+    expect(text).toBe("Invalid Login Details")
+
+  })
+})
+

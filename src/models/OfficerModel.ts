@@ -43,7 +43,7 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
   company: {
     type: Schema.Types.ObjectId, 
     ref: "Company", 
-    requird: [true, "Company ID must be provided"]
+    required: [true, "Company ID must be provided"]
   },
 
   location: {
