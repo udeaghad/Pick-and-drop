@@ -13,7 +13,7 @@ afterAll(async () =>  await closeDatabase());
 
 afterEach(async () => await clearDatabase())
 
-describe("Company", () => {
+describe("Company Auths", () => {
  
   it("Should create a new company successfully!", async() => {
     const companyInput = {
@@ -263,7 +263,7 @@ describe("Login Company", () => {
   })
 })
 
-describe("Officer", () => {
+describe("Officer Auths", () => {
 
   let company: string
   let cookies: string[];

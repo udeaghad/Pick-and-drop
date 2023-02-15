@@ -1,165 +1,115 @@
-import mongoose from "mongoose";
 import request from "supertest";
-import dotenv from "dotenv";
 import app from "../app";
+import { connect, clearDatabase, closeDatabase} from "./db"
 
-dotenv.config();
-mongoose.set('strictQuery', true);
-jest.setTimeout(10000);
 const agent = request.agent(app);
+const baseURL = "/api/v1/officers"
+jest.setTimeout(10000) 
 
-beforeEach(async () => {
-  await mongoose.connect(String(process.env.DB_TEST));
-});
 
-/* Closing database connection after each test. */
-afterEach(async () => {
-  await mongoose.connection.close();
-});
+beforeAll(async () => await connect());
 
-const companyInput = {
-  name: "company2",
-  email:"company2@example.com",
-  phoneNumber: "2348080425123",
-  city: "Onitsha",
-  state: "Anambra",
-  password: "mypassword"
-}
+afterAll(async () =>  await closeDatabase());
 
-const companyLoginDetails = {
-  email: "company2@example.com",
-  password: "mypassword"
-}
-
-const OfficerAccountDetails = {
-  name: "Malik",
-  password: "mypassword",
-  address: "Headbridge",
-  companyId: "",
-  location: "Main mkt",
-  phoneNumber: "080735483654"
-}
-
-const officerLoginDetails = {
-  phoneNumber:  "080735483654",
-  password: "mypassword",
-}
+afterEach(async () => await clearDatabase())
 
 
 describe("Officer", () => {
-  let companyId: string 
-  let officerId: string 
+  let companyId: string;
+  let companyCookies: string[];
+  let officerId: string;
+  let officerCookies: string[];
 
-  it("Should get all officers under a company", (done) => { 
-    //create Company if it does not exist
-    agent
-     .post('/api/v1/auths/register/company')
-     .send(companyInput)
-     .expect(200)
-     .end(() => {
-
-    //Login to the company
-    agent
-    .post("/api/v1/auths/login/company")
-    .send(companyLoginDetails)
-    .expect(200)
-    .end((err, res) => {
-      //Create officer
-      companyId = res.body._id;
-      agent
-      .post("/api/v1/auths/register/officer")
-      .set('Cookie', [res.header['set-cookie']])
-      .send({...OfficerAccountDetails, companyId})
-      .expect(200)
-      .end((err, res) => {
-        //Login officer to get the Id
-        agent
-        .post("/api/v1/auths/login/company")
-        .send(officerLoginDetails)
-        .expect(200)
-        .end((err, res) => {          
-          officerId = res.body._id
-          //get all officers
-          agent
-          .get(`/api/v1/officers/companies/${companyId}`)
-          .expect(200)
-          .end((err, res) => {
-            
-            expect(res.statusCode).toEqual(200)
-            expect(res.body.length).toBeGreaterThanOrEqual(0)
-            return done()
-        })
-        
-        })
-        })
-      })      
-    })
-  })
-  
-  it("Should get an officer", (done) => {
-    // console.log("officer", officerId)
-    // console.log("company", companyId)
-    agent
-    .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-    .expect(200)
-    .end((err, res) => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.name).toBe("malik")
-      return done()
-    })
-
-  })
+  beforeEach(async () => {
+    const companyInput = {
+      name: "company2",
+      email:"company2@example.com",
+      phoneNumber: "2348080425123",
+      city: "Onitsha",
+      state: "Anambra",
+      password: "mypassword",
+      confirmPassword: "mypassword"
+    }
     
-  
-  
-  it("Should update an officer's record", (done) => {
-    
-    const { phoneNumber, password } = OfficerAccountDetails
+    //Create company
+    await agent.post(`/api/v1/auths/register/company`).send(companyInput)
+     
+    //Login Company to get ID, create officer, and get cookies
+    const companyRes = await agent.post("/api/v1/auths/login").send({email:"company2@example.com", password: "mypassword"})
+    companyId = companyRes.body._id;
+    companyCookies = companyRes.get("Set-Cookie");
 
+    //Create Officers
+    const officerDetails1 = {
+      name: "Joy",
+      address: "Headbridge",
+      company: companyId,
+      location: "Main mkt",
+      phoneNumber: "08033548",
+      password: "mypassword",
+      confirmPassword: "mypassword",
+    }
+
+    const officerDetails2 = {
+      name: "Grace",
+      address: "Balogun",
+      company: companyId,
+      location: "Island",
+      phoneNumber: "08033548123",
+      password: "mypassword",
+      confirmPassword: "mypassword",
+    }
+    await agent.post(`/api/v1/auths/register/officer`)
+                                            .set('Cookie', companyCookies)
+                                            .send(officerDetails1)
+    await agent.post(`/api/v1/auths/register/officer`)
+                                            .set('Cookie', companyCookies)
+                                            .send(officerDetails2)
+
+    //Login one officer to get ID and cookies    
+    const officerRes =  await agent.post(`/api/v1/auths/login`).send({phoneNumber: "08033548123",password: "mypassword"})
+    officerId = officerRes.body._id;
+    officerCookies = officerRes.get("Set-Cookie");
+  })
+
+  it("Should get all officers under a company", async () => {
+    const { statusCode, body } = await agent.get(`${baseURL}/companies/${companyId}`)
+
+    expect(statusCode).toBe(200);
+    expect(body).toHaveLength(2);
+  });
+
+  it("Should get an officer", async () => {
+    const { body, statusCode } = await agent.get(`${baseURL}/${officerId}/companies/${companyId}`);
+
+    expect(statusCode).toEqual(200);
+    expect(body._id).toBe(officerId);
+    expect(body.name).toBe("Grace");
+    expect(body.address).toBe("Balogun");
+    expect(body.company.name).toBe("company2");
+    expect(body.location).toBe("Island");
+    expect(body.phoneNumber).toBe("08033548123");
+  })
+
+  it("Should update an officer records", async () => {
     const updateDetail = {
       location: "Main mkt"
     }
-    
-      //Login Officer
-      agent
-      .post("/api/v1/auths/login/company")
-      .send({phoneNumber, password})
-      .expect(200)
-      .end((err, res) => {
-        //update officer record
-        agent
-        .put(`/api/v1/officers/${officerId}/companies/${companyId}`)
-        .set('Cookie', [res.header['set-cookie']])
-        .send(updateDetail)
-        .expect(200)
-        .end((err, res) => {
-          expect(res.statusCode).toEqual(200)
-          expect(res.body.location).toBe(updateDetail.location)
-          return done()
-        })
-      })
-    })
-  
 
-  it("Should delete officer by company admin", (done) => {
+    const { body, statusCode } = await agent.put(`${baseURL}/${officerId}/companies/${companyId}`)
+                                            .set("Cookie", officerCookies)
+                                            .send(updateDetail)
     
-    //Login company
-    agent
-    .post("/api/v1/auths/login/company")
-    .send(companyLoginDetails)
-    .expect(200)
-    .end((err, res) => {
-      //delete officer      
-      agent
-      .delete(`/api/v1/officers/${officerId}/companies/${companyId}`)
-      .set('Cookie', [res.header['set-cookie']])
-      .expect(200)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(200)
-        expect(res.text).toBe("Officer deleted successfully")
-        return done()
-      })
-
-    })
+    expect(statusCode).toEqual(200)
+    expect(body.location).toBe("Main mkt")
   })
+
+  it("Should delete officer by company admin", async () => {
+    const { text, statusCode } = await agent.delete(`${baseURL}/${officerId}/companies/${companyId}`)
+                                            .set("Cookie", companyCookies)
+                                        
+    expect(statusCode).toEqual(200);
+    expect(text).toBe("Officer deleted successfully")
+  })
+
 })

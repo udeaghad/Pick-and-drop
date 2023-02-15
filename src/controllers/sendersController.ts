@@ -12,12 +12,12 @@ export const createSender = async(req: Request, res: Response, next: NextFunctio
   try {
     const senderExist: Sender | null = await Sender.findOne({phoneNumber: req.body.phoneNumber}).lean();
 
-    if(senderExist) return res.status(200).json( senderExist );
+    if(senderExist) return res.status(409).json( senderExist );
 
     const sender = new Sender(req.body)    
 
     await sender.save();
-    res.status(200).json(sender)
+    res.status(201).json(sender)
   } catch (err) {
     next(err)
   }

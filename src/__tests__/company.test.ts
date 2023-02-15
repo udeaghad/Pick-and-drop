@@ -39,12 +39,12 @@ describe("Company", () => {
       confirmPassword: "mypassword"    
     }
   
-  await agent.post(`/api/v1/auths/register/company`).send(companyInput1)
-  await agent.post(`/api/v1/auths/register/company`).send(companyInput2)
+    await agent.post(`/api/v1/auths/register/company`).send(companyInput1)
+    await agent.post(`/api/v1/auths/register/company`).send(companyInput2)
 
-  const res = await agent.post("/api/v1/auths/login").send({email:"company3@example.com", password: "mypassword"})
-  companyId = res.body._id
-  cookies = res.get("Set-Cookie")
+    const res = await agent.post("/api/v1/auths/login").send({email:"company3@example.com", password: "mypassword"})
+    companyId = res.body._id
+    cookies = res.get("Set-Cookie")
   })
 
   it("Should get all companies", async () => {

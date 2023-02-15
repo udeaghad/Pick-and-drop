@@ -1,88 +1,98 @@
-import mongoose from "mongoose";
 import request from "supertest";
-import dotenv from "dotenv";
 import app from "../app";
+import { connect, clearDatabase, closeDatabase} from "./db"
 
-dotenv.config();
-mongoose.set('strictQuery', true);
-jest.setTimeout(10000);
 const agent = request.agent(app);
+const baseURL = "/api/v1/senders"
+jest.setTimeout(10000) 
 
-beforeEach(async () => {
-  await mongoose.connect(String(process.env.DB_TEST));
-});
 
-/* Closing database connection after each test. */
-afterEach(async () => {
-  await mongoose.connection.close();
-});
+beforeAll(async () => await connect());
 
-const senderDetails = {
-  name: "Ngozi",
-  phoneNumber: "080254654421",
-  address: "13 Kano Street",
-  location: "Main market"
-}
+afterAll(async () =>  await closeDatabase());
+
+afterEach(async () => await clearDatabase())
 
 describe("Sender", () => {
-  it("Should create sender successfully", (done) => {
-    
+  let  senderId: string;
 
-    //Create sender
-    agent
-    .post("/api/v1/senders")
-    .send(senderDetails)
-    .expect(200)
-    .end((err, res) => {
-      expect(res.statusCode).toEqual(200)
-      return done()
-    })
+  beforeEach(async () => {
+
+    const senderDetails = {
+      name: "Favor",
+      phoneNumber: "0802566551",
+      address: "05 Lagos Street",
+      location: "Okota"
+    }
+  
+    const {body} = await agent.post(`${baseURL}`).send(senderDetails);
+  
+    senderId = body._id;
   })
 
-  it("Should update sender records", (done) => {
-    const updateDetail = {
-      phoneNumber: "080254654421"
+  it("Should create a sender successfully", async () =>{
+
+    const senderDetails = {
+      name: "Ngozi",
+      phoneNumber: "080254654421",
+      address: "13 Kano Street",
+      location: "Main market"
     }
 
-    //Create sender
-    agent
-    .post("/api/v1/senders")
-    .send(senderDetails)
-    .expect(200)
-    .end((err, res) => {
-      const senderId = res.body._id
-      //update sender record
-      agent
-      .put(`/api/v1/senders/${senderId}`)
-      .send(updateDetail)
-      .expect(200)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(200)
-        expect(res.body.phoneNumber).toBe(updateDetail.phoneNumber)
-        return done()
-      })
-    })
+    const {body, statusCode } = await agent.post(`${baseURL}`).send(senderDetails);
+    expect(statusCode).toEqual(201)
+    expect(body.name).toBe("Ngozi")
+    expect(body.phoneNumber).toBe("080254654421");
+    expect(body.address).toBe("13 Kano Street");
+    expect(body.location).toBe("Main market");
 
   })
 
-  it("Should get sender details", (done) => {
-    agent
-    .post("/api/v1/senders")
-    .send(senderDetails)
-    .expect(200)
-    .end((err, res) => {
-      const senderId = res.body._id
-      //get sender details
-      agent
-      .get(`/api/v1/senders/${senderId}`)
-      .expect(200)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(200)
-        expect(res.body.name).toBe(senderDetails.name)
-        expect(res.body.phoneNumber).toBe(senderDetails.phoneNumber)
-        expect(res.body.location).toBe(senderDetails.location)
-        return done()
-      })
-    })
+  it("Should return error if sender already exist", async () =>{
+
+    const senderDetails1 = {
+      name: "Ngozi",
+      phoneNumber: "080254654421",
+      address: "13 Kano Street",
+      location: "Main market"
+    }
+    const senderDetails2 = {
+      name: "Ngozi",
+      phoneNumber: "080254654421",
+      address: "13 Kano Street",
+      location: "Main market"
+    }
+
+    await agent.post(`${baseURL}`).send(senderDetails1);
+    const {body, statusCode } = await agent.post(`${baseURL}`).send(senderDetails2);
+
+    expect(statusCode).toEqual(409);
+    expect(body.name).toBe("Ngozi")
+    expect(body.phoneNumber).toBe("080254654421");
+    expect(body.address).toBe("13 Kano Street");
+    expect(body.location).toBe("Main market"); 
+
+  })
+
+  it("Should update sender successfully", async () => {
+
+    const updateDetail = {
+      phoneNumber: "080254654666"
+    }
+
+    const { body, statusCode } = await agent.put(`${baseURL}/${senderId}`).send(updateDetail)
+
+    expect(statusCode).toEqual(200);
+    expect(body.phoneNumber).toBe(updateDetail.phoneNumber)
+  })
+
+  it("Should get sender details", async () => {
+    const {body, statusCode} = await agent.get(`${baseURL}/${senderId}`)
+
+    expect(statusCode).toEqual(200)
+    expect(body.name).toBe("Favor")
+    expect(body.phoneNumber).toBe("0802566551")
+    expect(body.address).toBe("05 Lagos Street")
+    expect(body.location).toBe("Okota")
   })
 })
