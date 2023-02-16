@@ -1,85 +1,88 @@
-import mongoose from "mongoose";
 import request from "supertest";
-import dotenv from "dotenv";
 import app from "../app";
+import { connect, clearDatabase, closeDatabase} from "./db"
 
-dotenv.config();
-mongoose.set('strictQuery', true);
-jest.setTimeout(10000);
 const agent = request.agent(app);
+const baseURL = "/api/v1/receivers"
+jest.setTimeout(10000) 
 
-beforeEach(async () => {
-  await mongoose.connect(String(process.env.DB_TEST));
-});
 
-/* Closing database connection after each test. */
-afterEach(async () => {
-  await mongoose.connection.close();
-});
+beforeAll(async () => await connect());
 
-const receiverDetails = { 
-  name: "Oma",
-  phoneNumber: "+23458214",
-  city: "Enugu"
-}
+afterAll(async () =>  await closeDatabase());
+
+afterEach(async () => await clearDatabase())
 
 describe("Receiver", () => {
-  let  receiverId = ""
-  let senderId = ""
-  it("Should create receiver successfully", (done) => {
+  let  senderId: string;
+
+  beforeEach(async () => {
 
     const senderDetails = {
-      name: "Ngozi",
-      phoneNumber: "080254654421",
-      address: "13 Kano Street",
-      location: "Main market"
+      name: "Favor",
+      phoneNumber: "0802566551",
+      address: "05 Lagos Street",
+      location: "Okota"
     }
-    
-    //create sender
-    agent
-    .post("/api/v1/senders")
-    .send(senderDetails)
-    .expect(200)
-    .end((err, res) => {
-      senderId = res.body._id
-      //create receiver
-      agent
-      .post(`/api/v1/receivers/senders/${senderId}`)
-      .send(receiverDetails)
-      .expect(200)
-      .end((err, res) => {
-        receiverId = res.body._id
-         expect(res.statusCode).toEqual(200)
-         return done()
-      })
-    })    
+  
+    const {body} = await agent.post("/api/v1/senders").send(senderDetails);
+  
+    senderId = body._id;
   })
 
-  it("should update receiver records", (done) => {
-    const updateDetail = {
+  it("Should create receiver successfully", async () => {
+    const receiverDetails = { 
+      name: "Oma",
+      phoneNumber: "+23458214",
       city: "Enugu"
     }
 
-    agent
-    .put(`/api/v1/receivers/${receiverId}`)
-    .send(updateDetail)
-    .expect(200)
-    .end((err, res) => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.city).toBe(updateDetail.city)
-      return done()
-    })
+    const { body, statusCode } = await agent.post(`${baseURL}/senders/${senderId}`).send(receiverDetails)
+
+    expect(statusCode).toEqual(201)
+    expect(body.name).toBe("Oma")
+    expect(body.phoneNumber).toBe("+23458214")
+    expect(body.city).toBe( "Enugu")
   })
 
-  it("Should get receiver details", (done) => {
-    agent
-    .get(`/api/v1/receivers/${receiverId}`)
-    .expect(200)
-    .end((err, res) => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.name).toBe(receiverDetails.name)
-      expect(res.body.phoneNumber).toBe(receiverDetails.phoneNumber)
-      return done()
-    })
+  it("Should update receiver successfully", async () => {
+    //Create Receiver
+    const receiverDetails = { 
+      name: "Oma",
+      phoneNumber: "+23458214",
+      city: "Enugu"
+    }
+
+    const res = await agent.post(`${baseURL}/senders/${senderId}`).send(receiverDetails)
+    const receiverId = res.body._id
+    
+
+    const updateDetail = {
+      city: "Awka"
+    }
+
+    const { body, statusCode } = await agent.put(`${baseURL}/${receiverId}`).send(updateDetail)
+
+    expect(statusCode).toEqual(200)
+    expect(body.city).toBe(updateDetail.city)
+  })
+
+  it("Should get receiver details", async () => {
+    const receiverDetails = { 
+      name: "Oma",
+      phoneNumber: "+23458214",
+      city: "Enugu"
+    }
+
+    const res = await agent.post(`${baseURL}/senders/${senderId}`).send(receiverDetails)
+    const receiverId = res.body._id
+
+    const { body, statusCode } = await agent.get(`${baseURL}/${receiverId}`)
+
+    expect(statusCode).toEqual(200);
+    expect(body.name).toBe("Oma")
+    expect(body.phoneNumber).toBe("+23458214")
+    expect(body.city).toBe( "Enugu")
   })
 })
+  

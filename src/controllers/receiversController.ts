@@ -21,7 +21,7 @@ export const createReceiver = async(req: Request, res: Response, next: NextFunct
       next(err)
     }
 
-    res.status(200).json(receiver)
+    res.status(201).json(receiver)
 
   } catch (err) {
     next(err)
