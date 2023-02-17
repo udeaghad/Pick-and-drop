@@ -1,17 +1,16 @@
 import request from "supertest";
 import app from "../app";
-import { connect, clearDatabase, closeDatabase} from "./db"
+import { connect, clearDatabase, closeDatabase} from "./db/db"
 
+jest.setTimeout(10000) 
 const agent = request.agent(app);
 const baseURL = "/api/v1"
-jest.setTimeout(10000) 
 
+beforeAll( () =>  connect());
 
-beforeAll(async () => await connect());
+afterAll( () =>   closeDatabase());
 
-afterAll(async () =>  await closeDatabase());
-
-afterEach(async () => await clearDatabase())
+afterEach( () =>  clearDatabase())
 
 describe("Order", () => {
 
@@ -19,10 +18,6 @@ describe("Order", () => {
   let officer: string;
   let sender: string; 
   let receiver: string;
-  let pending: number;
-  let viewed: number
-  let picked: number;
-  let transit: number;
 
   beforeEach(async () => {
 
@@ -271,264 +266,170 @@ describe("Order", () => {
     expect(statusCode).toEqual(200);
     expect(body).toHaveLength(2)
     expect(body[0].content).toBe("wristwatch")
-    expect(body[1].content).toBe("weavon")
+    expect(body[1].content).toBe("weavon")    
     
-    
-  })
-
-  describe("Officer status count", () => {
-    let officerPendingCount: number
-    let officerViewedCount: number
-    let officerPickedCount: number
-    let officerTransitCount: number
-    let order: string
-
-    beforeEach(async () => {
-     //get officer's current status count
-      const {body} = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
-      
-      officerPendingCount = body.pending
-      officerViewedCount = body.viewed
-      officerPickedCount = body.picked
-      officerTransitCount = body.transit
-
-      //create order
-      const orderdetail = {
-        content: "weavon",
-        company,
-        receiver,
-        sender,
-        officer,
-        deliveryPoint: "Park",
-        deliveryAddress: "Peace Park Upper iweka",
-        serviceFee: 500,
-        RegisteredWaybill: false,
-        orderDate: "2022-01-01"
-      } 
-  
-     const res = await agent.post(`${baseURL}/orders`).send(orderdetail)
-     order = res.body._id
-    })   
-    
-
-    it("Should increase officer pending count by 1 when new order is created", async () => {
-      //get new pending count of the officer
-      
-      const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
-      
-  
-      expect(body.pending).toEqual(officerPendingCount + 1)    
-  
-    })
-
-    it("Should increase officer viewed count by 1 when order status is updated", async () => {
-      //Update order status
-      const updateDetail= {      
-        status: "Viewed",
-      } 
-      
-      await agent.put(`${baseURL}/orders/${order}`).send(updateDetail)
-      
-      //get new pending count of the officer
-      
-      const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
-     
-  
-      expect(body.viewed).toEqual(officerViewedCount + 1)       
-  
-    })
   })
 
 })
 
+describe("Officer status count", () => {
+  let company: string;
+  let officer: string;
+  let sender: string; 
+  let receiver: string;
+  let officerPendingCount: number
+  let officerViewedCount: number
+  let officerPickedCount: number
+  let officerTransitCount: number
+  let order: string
 
-//   it("Should increase officer pending count by 1 when new order is created", (done) => {
-//     let pendingOrderCount: number
+  beforeEach(async () => {
 
-//     const orderDetails = {
-//       content: "iPhone",
-//       companyId,
-//       receiverId,
-//       senderId,
-//       officerId,
-//       deliveryPoint: "Park",
-//       serviceFee: "500",
-//       RegisteredWaybill: "false"
-//     } 
-     
-//     //Let's get the exisiting pending count
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         pendingOrderCount = res.body.pending
-//         // Lets create new order
-//         agent
-//         .post("/api/v1/orders")
-//         .send(orderDetails)
-//         .end(() => {
-//           //Let's compare result
-//           agent
-//             .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//             .end((err, res) => { 
-//               expect(res.body.pending).toBeGreaterThan(pendingOrderCount)
-//               return done()
-//             }) 
-//         })
-//     })
-//   })
+    //Create company
+    const companyInput = {
+      name: "company2",
+      email:"company2@example.com",
+      phoneNumber: "2348080425123",
+      city: "Onitsha",
+      state: "Anambra",
+      password: "mypassword",
+      confirmPassword: "mypassword"
+    }  
+  
+    await agent.post(`${baseURL}/auths/register/company`).send(companyInput)
+    
 
-//   it("Should increase the officer view count and reduce pending count when order status is changed to view", (done) => {
+    const companyRes = await agent.post(`${baseURL}/auths/login`).send({email:"company2@example.com", password: "mypassword"})
+    company = companyRes.body._id
+    const companyCookies = companyRes.get("Set-Cookie")
+    
+    //Create Officer
+    const officerDetails = {
+      name: "Joy",
+      address: "Headbridge",
+      company,
+      location: "Main mkt",
+      phoneNumber: "08033548",
+      password: "mypassword",
+      confirmPassword: "mypassword",
+    }
 
-//     let pendingOrderCount: number
-//     let viewedOrderCount: number
-//     const updateOrderStatus = {
-//       status: "Viewed"
-//     }
+    await agent.post(`${baseURL}/auths/register/officer`)
+                                            .set('Cookie', companyCookies)
+                                            .send(officerDetails)
+    
+    const officerRes = await agent.post(`${baseURL}/auths/login`).send({phoneNumber: "08033548", password: "mypassword"})
+    officer = officerRes.body._id;
 
-//     //Let's get the exisiting pending counts
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         pendingOrderCount = res.body.pending
-//         viewedOrderCount = res.body.viewed
+    //Create Sender
+    const senderDetails = {
+      name: "Favor",
+      phoneNumber: "0802566551",
+      address: "05 Lagos Street",
+      location: "Okota"
+    }
 
-//       //let's update an order
-//       agent
-//       .put(`/api/v1/orders/${orderId}`)
-//       .send(updateOrderStatus)
-//       .end(() => {
-//         //Lets compare
-//         agent
-//           .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//           .end((err, res) => {
-//             expect(res.body.pending).toBeLessThan(pendingOrderCount)
-//             expect(res.body.viewed).toBeGreaterThan(viewedOrderCount)
-//             return done()
-//           }) 
-//       })
-//     })
-//   })
-//   it("Should increase the officer  picked count and reduce view count when order status is changed to on-transit", (done) => {
+    const senderRes = await agent.post(`${baseURL}/senders`).send(senderDetails);
 
-//     let viewedOrderCount: number
-//     let pickedOrderCount: number
-//     const updateOrderStatus = {
-//       status: "Received"
-//     }
+    sender = senderRes.body._id;
 
-//     //Let's get the exisiting pending counts
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         viewedOrderCount = res.body.viewed
-//         pickedOrderCount = res.body.picked
+  //Create receiver
+    const receiverDetails = { 
+      name: "Oma",
+      phoneNumber: "+23458214",
+      city: "Enugu"
+    }
+  
+    const receiverRes = await agent.post(`${baseURL}/receivers/senders/${sender}`).send(receiverDetails)
+  
+    receiver = receiverRes.body._id
 
-//       //let's update an order
-//       agent
-//       .put(`/api/v1/orders/${orderId}`)
-//       .send(updateOrderStatus)
-//       .end(() => {
-//         //Lets compare
-//         agent
-//           .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//           .end((err, res) => {
-//             expect(res.body.viewed).toBeLessThan(viewedOrderCount)
-//             expect(res.body.picked).toBeGreaterThan(pickedOrderCount)
-//             return done()
-//           }) 
-//       })
-//     })
-//   })
-//   it("Should increase the officer  picked count and reduce view count when order status is changed to Reviewed", (done) => {
+   //get officer's current status count
+    const {body} = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
+    
+    officerPendingCount = body.pending
+    officerViewedCount = body.viewed
+    officerPickedCount = body.picked
+    officerTransitCount = body.transit
 
-//     let viewedOrderCount: number
-//     let pickedOrderCount: number
-//     const updateOrderStatus = {
-//       status: "Received"
-//     }
+    //create order
+    const orderdetail = {
+      content: "weavon",
+      company,
+      receiver,
+      sender,
+      officer,
+      deliveryPoint: "Park",
+      deliveryAddress: "Peace Park Upper iweka",
+      serviceFee: 500,
+      RegisteredWaybill: false,
+      orderDate: "2022-01-01"
+    } 
 
-//     //Let's get the exisiting pending counts
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         viewedOrderCount = res.body.viewed
-//         pickedOrderCount = res.body.picked
+   const res = await agent.post(`${baseURL}/orders`).send(orderdetail)
+   order = res.body._id
+ 
+  })   
+  
 
-//       //let's update an order
-//       agent
-//       .put(`/api/v1/orders/${orderId}`)
-//       .send(updateOrderStatus)
-//       .end(() => {
-//         //Lets compare
-//         agent
-//           .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//           .end((err, res) => {
-//             expect(res.body.viewed).toBeLessThan(viewedOrderCount)
-//             expect(res.body.picked).toBeGreaterThan(pickedOrderCount)
-//             return done()
-//           }) 
-//       })
-//     })
-//   })
+  it("Should increase officer pending count by 1 when new order is created", async () => {
+    //get new pending count of the officer
+    
+    const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
+    
 
-//   it("Should increase the officer transit count and decrease picked count when order status is changed to on-transit", (done) => {
+    expect(body.pending).toEqual(officerPendingCount + 1)    
 
-//     let pickedOrderCount: number
-//     let transitOrderCount: number
-//     const updateOrderStatus = {
-//       status: "On Transit"
-//     }
+  })
 
-//     //Let's get the exisiting pending counts
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         pickedOrderCount = res.body.picked
-//         transitOrderCount = res.body.transit
+  it("Should increase officer viewed count by 1 when order status is updated", async () => {
+    //Update order status
+    const updateDetail= {      
+      status: "Viewed",
+    } 
+    
+    await agent.put(`${baseURL}/orders/${order}`).send(updateDetail)
+    
+    //get new pending count of the officer
+    
+    const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
+   
 
-//       //let's update an order
-//       agent
-//       .put(`/api/v1/orders/${orderId}`)
-//       .send(updateOrderStatus)
-//       .end(() => {
-//         //Lets compare
-//         agent
-//           .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//           .end((err, res) => {
-//             expect(res.body.picked).toBeLessThan(pickedOrderCount)
-//             expect(res.body.transit).toBeGreaterThan(transitOrderCount)
-//             return done()
-//           }) 
-//       })
-//     })
-//   })
+    expect(body.viewed).toEqual(officerViewedCount + 1)       
+         
 
-//   it("Should decrease transit count when order status is changed to Delivered", (done) => {
+  })
 
-//     let transitOrderCount: number
-//     const updateOrderStatus = {
-//       status: "Delivered"
-//     }
+  it("Should increase officer picked count by 1 when order status is updated", async () => {
+    //Update order status
+    const updateDetail= {      
+      status: "Received",
+    } 
+    
+    await agent.put(`${baseURL}/orders/${order}`).send(updateDetail)
+    
+    //get new pending count of the officer
+    
+    const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
+   
 
-//     //Let's get the exisiting pending counts
-//     agent
-//       .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//       .end((err, res) => {        
-//         transitOrderCount = res.body.transit
+    expect(body.picked).toEqual(officerPickedCount + 1)       
 
-//       //let's update an order
-//       agent
-//       .put(`/api/v1/orders/${orderId}`)
-//       .send(updateOrderStatus)
-//       .end(() => {
-//         //Lets compare
-//         agent
-//           .get(`/api/v1/officers/${officerId}/companies/${companyId}`)
-//           .end((err, res) => {
-//             expect(res.body.transit).toBeLessThan(transitOrderCount)
-//             return done()
-//           }) 
-//       })
-//     })
-//   })
-// })
+  })
+  it("Should increase officer transit count by 1 when order status is updated", async () => {
+    //Update order status
+    const updateDetail= {      
+      status: "On Transit",
+    } 
+    
+    await agent.put(`${baseURL}/orders/${order}`).send(updateDetail)
+    
+    //get new pending count of the officer
+    
+    const { body } = await agent.get(`${baseURL}/officers/${officer}/companies/${company}`)
+   
+
+    expect(body.transit).toEqual(officerTransitCount + 1)       
+
+  })
+})

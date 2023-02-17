@@ -1,17 +1,16 @@
 import request from "supertest";
 import app from "../app";
-import { connect, clearDatabase, closeDatabase} from "./db"
+import { connect, clearDatabase, closeDatabase} from "./db/db"
 
+// jest.setTimeout(10000) 
 const agent = request.agent(app);
-const baseURL = "/api/v1/companies"
-jest.setTimeout(10000) 
+const baseURL = "/api/v1/companies";
 
+beforeAll( () =>  connect());
 
-beforeAll(async () => await connect());
+afterAll( () =>   closeDatabase());
 
-afterAll(async () =>  await closeDatabase());
-
-afterEach(async () => await clearDatabase())
+afterEach( () =>  clearDatabase())
 
 describe("Company", () => {
   let companyId: string;
@@ -50,7 +49,7 @@ describe("Company", () => {
   it("Should get all companies", async () => {
 
     const { body, statusCode } = await agent.get(baseURL)
-    console.log(body)
+    
     expect(statusCode).toEqual(200)
     expect(body).toHaveLength(2)
   })

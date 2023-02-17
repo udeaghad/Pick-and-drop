@@ -1,17 +1,17 @@
 import request from "supertest";
 import app from "../app";
-import { connect, clearDatabase, closeDatabase} from "./db"
+import { connect, clearDatabase, closeDatabase} from "./db/db"
 
+// jest.setTimeout(10000) 
 const agent = request.agent(app);
 const baseURL = "/api/v1/receivers"
-jest.setTimeout(10000) 
 
 
-beforeAll(async () => await connect());
+beforeAll( () =>  connect());
 
-afterAll(async () =>  await closeDatabase());
+afterAll( () =>   closeDatabase());
 
-afterEach(async () => await clearDatabase())
+afterEach( () =>  clearDatabase())
 
 describe("Receiver", () => {
   let  senderId: string;

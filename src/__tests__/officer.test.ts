@@ -1,17 +1,17 @@
 import request from "supertest";
 import app from "../app";
-import { connect, clearDatabase, closeDatabase} from "./db"
+import { connect, clearDatabase, closeDatabase} from "./db/db"
 
-const agent = request.agent(app);
-const baseURL = "/api/v1/officers"
 jest.setTimeout(10000) 
+const agent = request.agent(app);
+const baseURL = "/api/v1/officers";
 
 
-beforeAll(async () => await connect());
+beforeAll( () =>  connect());
 
-afterAll(async () =>  await closeDatabase());
+afterAll( () =>   closeDatabase());
 
-afterEach(async () => await clearDatabase())
+afterEach( () =>  clearDatabase())
 
 
 describe("Officer", () => {
