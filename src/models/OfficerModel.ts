@@ -2,17 +2,21 @@ import mongoose, { Types, Model  } from "mongoose";
 
 const { Schema } = mongoose;
 
+interface IStatusCount {
+  pending: number;
+  viewed: number;
+  picked: number;
+  transit: number;
+}
+
 export interface IOfficer {
   name: string;
   password: string;
   address: string;
   company: Types.ObjectId;
   location: string;
-  phoneNumber: string;
-  pending: number;
-  viewed: number;
-  picked: number;
-  transit: number;
+  statusCount: IStatusCount
+  phoneNumber: string;  
   isAdmin: boolean;
 }
 
@@ -56,21 +60,23 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
     required: [true, "Phone Number must be provided"]
   },
 
-  pending: {
-    type: Number,
-    default: 0,
-  },
-  viewed: {
-    type: Number,
-    default: 0,
-  },
-  picked: {
-    type: Number,
-    default: 0,
-  },
-  transit: {
-    type: Number,
-    default: 0,
+  statusCount: {
+    pending: {
+      type: Number,
+      default: 0,
+    },
+    viewed: {
+      type: Number,
+      default: 0,
+    },
+    picked: {
+      type: Number,
+      default: 0,
+    },
+    transit: {
+      type: Number,
+      default: 0,
+    },
   },
 
   isAdmin: {
@@ -84,29 +90,29 @@ const OfficerSchema = new Schema<IOfficer, OfficerModel, IStatusMethods>({
 
 OfficerSchema.method('updateStatus', function updateStatus(status: Status){
      if(status === "Pending") {
-      this.pending += 1;
+      this.statusCount.pending += 1;
       return
       }
      if(status === "Viewed") {
-        this.pending -=1;
-        this.viewed +=1;
+        this.statusCount.pending -=1;
+        this.statusCount.viewed +=1;
         return;
      }
 
      if(status === "Received"){
-       this.viewed -=1;
-       this.picked +=1;
+       this.statusCount.viewed -=1;
+       this.statusCount.picked +=1;
        return;
      }
 
      if(status === "On Transit"){
-      this.picked -=1;
-      this.transit +=1;
+      this.statusCount.picked -=1;
+      this.statusCount.transit +=1;
       return
      }
 
      if(status === "Delivered"){
-      this.transit -=1
+      this.statusCount.transit -=1
       return
      }
 })

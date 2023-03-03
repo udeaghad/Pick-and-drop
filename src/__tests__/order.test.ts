@@ -168,7 +168,7 @@ describe("Order", () => {
     expect(body.receiver.city).toBe("Enugu")
   })
 
-  it("Should get orders for a company with a start date", async () => {
+  it("Should filter orders for a company with a start date", async () => {
     const orderdetail1 = {
       content: "weavon",
       company,
@@ -219,7 +219,7 @@ describe("Order", () => {
     
   })
 
-  it("Should get orders for a company with a start date and end date", async () => {
+  it("Should filter orders for a company with a start date and end date", async () => {
     const orderdetail1 = {
       content: "weavon",
       company,
