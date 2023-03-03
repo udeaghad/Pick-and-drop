@@ -93,6 +93,7 @@ OfficerSchema.method('updateStatus', function updateStatus(status: Status){
       this.statusCount.pending += 1;
       return
       }
+     
      if(status === "Viewed") {
         this.statusCount.pending -=1;
         this.statusCount.viewed +=1;

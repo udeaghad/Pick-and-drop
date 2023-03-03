@@ -922,18 +922,21 @@ definitions:
         type: string
         description: Unique ID of the company
         required: true
-      pending:
-        type: number
-        description: Number of pending order
-      viewed:
-        type: number
-        description: Number of viewed order
-      picked:
-        type: number
-        description: Number of order picked/recieved by the officer
-      transit:
-        type: number
-        description: Number of order on transit to park or home
+      statusCount:
+        type: object
+        properties:
+          pending:
+            type: number
+            description: Number of pending order
+          viewed:
+            type: number
+            description: Number of viewed order
+          picked:
+            type: number
+            description: Number of order picked/recieved by the officer
+          transit:
+            type: number
+            description: Number of order on transit to park or home
       isAdmin:
         type: boolean
         description: Admin access to Officer
