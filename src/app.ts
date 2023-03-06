@@ -9,7 +9,8 @@ import sendersRoutes from "./routes/sendersRoutes";
 import receiversRoutes from "./routes/receiversRoutes";
 import ordersRoutes from "./routes/ordersRoutes";
 import swaggerUi from "swagger-ui-express";
-import YAML from "yamljs"
+import YAML from "yamljs";
+
 
 dotenv.config();
 const app: Application = express();
@@ -30,6 +31,10 @@ app.use(express.json());
 
 /**cookie parser */
 app.use(cookieParser());
+
+// client.connect().then(() => {
+//   console.log("Redis is connected")
+// })
 
 app.get('/', (req: Request, res: Response) => {
   res.send(`Error! Visit the https://pick-and-drop.onrender.com/api-docs for more information`)
@@ -57,5 +62,7 @@ const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
 }
 
 app.use(errorHandler);
+
+
 
 export default app;
