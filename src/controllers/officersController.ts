@@ -26,7 +26,9 @@ export const getAllOfficers = async(req: Request, res: Response, next: NextFunct
     const {password, ...otherDetails } = officer;
       return otherDetails;
     })
+
     await client.setEx(`officers-in-company-${req.params.companyId}`, 60, JSON.stringify(result))
+    
     res.status(200).json(result)
   } catch (err) {
     next(err)
@@ -35,11 +37,21 @@ export const getAllOfficers = async(req: Request, res: Response, next: NextFunct
 
 export const getOfficer = async(req: Request, res: Response, next: NextFunction) => {
   try {
+
+    const cachedResult = await client.get(`officer-${req.params.officerId}`)
+
+    if(cachedResult){
+      return res.status(200).json(JSON.parse(cachedResult))
+    }
     const officer: Officer | null = await Officer.findOne({company: req.params.companyId, _id: req.params.officerId})
                                                  .lean()
                                                  .populate("company", "name");
     if(!officer) return res.status(400).send("Record not found")
+
     const { password, ...otherDetails } = officer;
+
+    await client.setEx(`officer-${req.params.officerId}`, 60, JSON.stringify(otherDetails))
+
     res.status(200).json(otherDetails)
   } catch (err) {
     next(err)
