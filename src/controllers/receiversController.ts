@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction} from "express";
+import client from "../utils/redisConnect";
 import { Types } from "mongoose";
 import Receiver from "../models/receiverModel";
 import Sender from "../models/SenderModel";
@@ -39,8 +40,16 @@ export const updateReceiver = async(req: Request, res: Response, next: NextFunct
 
 export const getReceiver = async(req: Request, res: Response, next: NextFunction) => {
   try {
+
+    const cachedResult = await client.get(`receiver-${req.params.receiverId}`)
+
+    if(cachedResult) return res.status(200).json(JSON.parse(cachedResult))
+
     const receiver: Receiver | null = await Receiver.findById(req.params.receiverId).lean();
+
     if(!receiver) return res.status(404).send("Receiver records does not exisit")
+
+    await client.setEx(`receiver-${req.params.receiverId}`, 3600, JSON.stringify(receiver))
 
     res.status(200).json(receiver)
   } catch (err) {
