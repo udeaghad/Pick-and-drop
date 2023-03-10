@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import app from "./app";
+import client from "./utils/redisConnect";
 
 const port: number = Number(process.env.PORT) || 5001;
 
@@ -23,6 +24,11 @@ mongoose.connection.on("disconnected", () => {
 mongoose.connection.on("connected", () => {
   console.log("Database Connected")
 });
+
+client.connect().then(() => {
+  console.log("Redis is connected")
+})
+.catch(err => console.log(err.message))
 
 
 app.listen(port, () => {

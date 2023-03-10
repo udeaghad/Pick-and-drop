@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from "express"
 import { Types } from "mongoose";
+import client from "../utils/redisConnect";
 import Company from "../models/CompanyModel";
 import Officer from "../models/OfficerModel";
 import { IOfficer } from "../models/OfficerModel";
@@ -10,6 +11,13 @@ interface Officer extends IOfficer {
 
 export const getAllOfficers = async(req: Request, res: Response, next: NextFunction) => {
   try {
+
+    const cachedResult = await client.get(`officers-in-company-${req.params.companyId}`)
+
+    if(cachedResult){
+      return res.status(200).json(JSON.parse(cachedResult))
+    }
+
     const allOfficers: Officer[] = await Officer.find({company: req.params.companyId})
                                                 .lean()
                                                 .populate("company", "name");
@@ -18,6 +26,7 @@ export const getAllOfficers = async(req: Request, res: Response, next: NextFunct
     const {password, ...otherDetails } = officer;
       return otherDetails;
     })
+    await client.setEx(`officers-in-company-${req.params.companyId}`, 60, JSON.stringify(result))
     res.status(200).json(result)
   } catch (err) {
     next(err)
