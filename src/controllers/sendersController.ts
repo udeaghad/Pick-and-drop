@@ -46,7 +46,7 @@ export const getSender = async(req: Request, res: Response, next: NextFunction) 
 
     if(!sender) return res.status(404).send("Sender Info does not exist")
 
-    await client.setEx(`sender-${req.params.senderId}`, 3600, JSON.stringify(sender));
+    await client.setEx(`sender-${req.params.senderId}`, 60, JSON.stringify(sender));
     res.status(200).json(sender)
   } catch (err) {
     next(err)

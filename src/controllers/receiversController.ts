@@ -49,7 +49,7 @@ export const getReceiver = async(req: Request, res: Response, next: NextFunction
 
     if(!receiver) return res.status(404).send("Receiver records does not exisit")
 
-    await client.setEx(`receiver-${req.params.receiverId}`, 3600, JSON.stringify(receiver))
+    await client.setEx(`receiver-${req.params.receiverId}`, 60, JSON.stringify(receiver))
 
     res.status(200).json(receiver)
   } catch (err) {

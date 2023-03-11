@@ -76,6 +76,7 @@ export const updateCompanyPassword = async(req: Request, res: Response, next: Ne
 }
 
 export const registerOfficer = async(req: Request, res: Response, next: NextFunction) => {
+  
   const { name, address, company, location, phoneNumber, password, confirmPassword} = req.body;
    
   if(req.cookies.cookies.id !== company || !req.cookies.cookies.isAdmin) return res.status(401).send("You are not authorised to perform this action")
@@ -144,11 +145,11 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
                                                .populate("company", ["name", "city" ]);
  
   if(!company && !officer ) return res.status(401).send("Invalid Login Details")
-  
+  console.log(company)
   if(company){
     try {
         const {_id, password, ...otherDetails }  = company;
-    
+        
         const validPassword = await bcrypt.compare(req.body.password, password);
         if(!validPassword) return res.status(401).send("Invalid Login Details")
     
@@ -157,6 +158,7 @@ export const Login = async(req: Request, res: Response, next: NextFunction) => {
         res
         .cookie("cookies", token, { httpOnly: true, sameSite: "none", secure: true})
         .status(200).json({ _id, ...otherDetails });
+        
       } catch (err) {
         next(err)
       }
