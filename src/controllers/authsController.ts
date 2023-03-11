@@ -135,17 +135,15 @@ export const updateOfficerPassword = async(req: Request, res: Response, next: Ne
   
 }
   
-export const Login = async(req: Request, res: Response, next: NextFunction) => {  
-    
-  const company: Company | null = await Company.findOne({email: req.body.email})
-                                               .lean()
-                                               .populate("offices", ["name", "location"]);
-  const officer: Officer | null = await Officer.findOne({phoneNumber: req.body.phoneNumber})
-                                               .lean()
-                                               .populate("company", ["name", "city" ]);
+export const Login = async(req: Request, res: Response, next: NextFunction) => { 
+  
+  const [company, officer] = await Promise.all([
+    Company.findOne({email: req.body.email}).lean().populate("offices", ["name", "location"]),
+    Officer.findOne({phoneNumber: req.body.phoneNumber}).lean().populate("company", ["name", "city" ]),
+  ]);
  
   if(!company && !officer ) return res.status(401).send("Invalid Login Details")
-  console.log(company)
+
   if(company){
     try {
         const {_id, password, ...otherDetails }  = company;

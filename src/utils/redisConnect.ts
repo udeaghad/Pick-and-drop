@@ -1,5 +1,4 @@
-import Redis, { createClient} from 'redis';
-import util from 'util'
+import { createClient} from 'redis';
 const redisURL: string = process.env.redisURL as string;
 
 const client = createClient({url: redisURL})
