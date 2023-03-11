@@ -1,0 +1,49 @@
+import mongoose, { Model, Types } from "mongoose";
+
+const {Schema} = mongoose;
+
+export interface ISender {
+  name: string;
+  phoneNumber: string;
+  address: string;
+  location: string;
+  orders: Types.ObjectId[];
+  customers: Types.ObjectId[];
+}
+
+const SenderSchema = new Schema<ISender>({
+  name: {
+    type: String,
+    required: true,
+  },
+
+  phoneNumber: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+
+  address: {
+    type: String,
+    required: true,
+  },
+
+  location: {
+    type: String,
+    required: true,
+  },
+
+  orders: {
+    type: [{type: Schema.Types.ObjectId, ref: "Order",required: true }],
+  },
+
+  customers: {
+    type: [{type: Schema.Types.ObjectId, ref: "Receiver", required: true}]
+  },
+  
+},
+{timestamps: true});
+
+export default mongoose.model("Sender", SenderSchema);
+
+

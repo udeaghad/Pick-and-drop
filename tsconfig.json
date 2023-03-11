@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    
+    "target": "ES2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    
+    /* Modules */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
+    "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
+    "typeRoots": ["./node_modules/@types/", "./src/@types/"],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+    "types": ["jest", "node", "@types/jest"],                                      /* Specify type package names to be included without being referenced in a source file. */
+    "outDir": "./build",                                   /* Specify an output folder for all emitted files. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+
+    /* Type Checking */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    
+    /* Completeness */    
+    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+  },
+  "include": ["./src", "jest.config.js"],
+  "exclude": ["node_modules"],
+}
